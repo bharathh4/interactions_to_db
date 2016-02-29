@@ -1,20 +1,21 @@
 import sqlite3
 from util import process, get_rows
 
+
 def compose_sqlite_query(params, tablename):
 
     sql_header_statement = '''SELECT * FROM %s WHERE''' % (tablename)
-    
+
     conditions = []
     for k, v in sorted(params.iteritems()):
         if k is not 'self' and v is not None:
             print k, v
             sql_statement = '%s=%s' % (k, v)
             conditions.append(sql_statement)
-            
+
     sql_statement = sql_header_statement + ' ' + " and ".join(conditions)
     print sql_statement
-    
+
     return sql_statement
 
 
@@ -56,7 +57,8 @@ class DB():
     def check_if_row_exists(self, time, milliseconds, firstname, lastname, grammarlevel, tablename):
         # Using time, firstname, lastname and grammarlevel as to check
         c = self.conn.cursor()
-        sql_statement = "SELECT time, milliseconds, firstname, lastname, grammarlevel  FROM %s" % (tablename)
+        sql_statement = "SELECT time, milliseconds, firstname, lastname, grammarlevel  FROM %s" % (
+            tablename)
         for row in c.execute(sql_statement):
             if (int(time), int(milliseconds), firstname, lastname, grammarlevel) == (row):
                 return True
@@ -89,7 +91,8 @@ class DB():
 
             # Insert row into database
             # Check if row exists. If yes don't add. If not add
-            datarow_exist_status = self.check_if_row_exists(time, milliseconds, firstname, lastname, grammarlevel, tablename)
+            datarow_exist_status = self.check_if_row_exists(
+                time, milliseconds, firstname, lastname, grammarlevel, tablename)
             if datarow_exist_status:
                 print 'The data row you are trying to add might already exist'
             else:
@@ -103,10 +106,10 @@ class DB():
                 c.execute(sql_statement)
 
     def getall(self, transcript_si=None, transcript=None, decode_si=None,
-             decode=None, conf=None, decode_time=None, callsrepath=None, acoustic_model=None, 
-             date=None, time=None, milliseconds=None, grammarlevel=None, firstname=None, lastname=None, 
-             oration_id=None, chain=None, store=None, exactinteractionfilerow=None):
-             
+               decode=None, conf=None, decode_time=None, callsrepath=None, acoustic_model=None,
+               date=None, time=None, milliseconds=None, grammarlevel=None, firstname=None, lastname=None,
+               oration_id=None, chain=None, store=None, exactinteractionfilerow=None):
+
         # Get function parameters
         params = locals().copy()
         tablename = 'transcriptions'
@@ -114,4 +117,3 @@ class DB():
         print 'Getting all db entries'
         c = self.conn.cursor()
         return [row[-1] for row in c.execute(sqlite_query)]
-            
