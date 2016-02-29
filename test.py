@@ -34,4 +34,4 @@ def demo_interactions_composer():
 if __name__ == '__main__':
 
     #demo_database()
-    interactions_composer.test()
+    demo_interactions_composer()
