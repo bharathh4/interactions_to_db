@@ -1,6 +1,6 @@
 from datamanager import dbhelper, interactions_composer, constants
 import os
-
+DATA_DIR = constants.DATA_DIR
 
 def demo_database():
     interactions = 'test1.interactions'
@@ -19,7 +19,7 @@ def demo_database():
 
 def demo_interactions_composer():
     interactions = 'test1.interactions'
-    DATA_DIR = constants.DATA_DIR
+    
 
     interactions_path = os.path.join(DATA_DIR, interactions)
 
@@ -36,5 +36,6 @@ def demo_interactions_composer():
 
 if __name__ == '__main__':
 
-    # demo_database()
-    # demo_interactions_composer()
+    #demo_database()
+    #demo_interactions_composer()
+    pass
