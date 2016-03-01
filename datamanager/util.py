@@ -1,3 +1,6 @@
+def doublequote(word):
+    return "\"" + word + "\""
+
 def get_rows(interactionsfilename):
     with open(interactionsfilename, 'r') as f:
         rows = [line for line in f]
