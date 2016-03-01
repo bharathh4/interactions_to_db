@@ -40,6 +40,44 @@ class DB():
         rows = c.execute(
             '''SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;''')
         return [row for row in rows.fetchall()]
+        
+    def create(self, tablename):
+        # Creating table if it does not exist in db
+        c = self.conn.cursor()
+        if not self.check_if_table_exists(tablename):
+            sql_statement = '''CREATE TABLE %s (transcript_si, transcript, decode_si,
+             decode, conf, decode_time, callsrepath, acoustic_model, 
+             date, time, milliseconds, grammarlevel, firstname, lastname, 
+             oration_id, chain, store, exactinteractionfilerow)''' % (
+                tablename)
+            c.execute(sql_statement)
+            
+    def addrow(self, row, tablename):
+        c = self.conn.cursor()
+        data = process(row)
+        
+        (transcript_si, transcript, decode_si,
+             decode, conf, decode_time, callsrepath, acoustic_model,
+             date, time, milliseconds, grammarlevel, firstname, lastname,
+             oration_id, chain, store) = data
+
+        # Insert row into database
+        # Check if row exists. If yes don't add. If not add
+        datarow_exist_status = self.check_if_row_exists(
+                time, milliseconds, firstname, lastname, grammarlevel, tablename)
+        if datarow_exist_status:
+            print 'The data row you are trying to add might already exist'
+        else:
+            print 'Adding data row to database'
+            sql_statement = '''INSERT INTO %s VALUES ("%s", "%s", "%s", "%s", %d, %d, "%s", "%s", %s, %s, %s, "%s", "%s", "%s", "%s", "%s", "%s", "%s")''' % (
+                    tablename, transcript_si, transcript, decode_si,
+                    decode, int(conf), int(
+                        decode_time), callsrepath, acoustic_model,
+                    date, time, milliseconds, grammarlevel, firstname, lastname,
+                    oration_id, chain, store, row)
+            c.execute(sql_statement)
+
+
 
     def check_if_table_exists(self, tbname=None):
         tablenames = self.get_table_names()
@@ -66,45 +104,13 @@ class DB():
             return False
 
     def add(self, interactions):
-
         print 'Adding interactions to database'
-
-        # Creating table if it does not exist in db
-        c = self.conn.cursor()
         tablename = 'transcriptions'
-        if not self.check_if_table_exists(tablename):
-            sql_statement = '''CREATE TABLE %s (transcript_si, transcript, decode_si,
-             decode, conf, decode_time, callsrepath, acoustic_model, 
-             date, time, milliseconds, grammarlevel, firstname, lastname, 
-             oration_id, chain, store, exactinteractionfilerow)''' % (
-                tablename)
-            c.execute(sql_statement)
-
+        self.create(tablename)
         for row in get_rows(interactions):
-
-            data = process(row)
-
-            (transcript_si, transcript, decode_si,
-             decode, conf, decode_time, callsrepath, acoustic_model,
-             date, time, milliseconds, grammarlevel, firstname, lastname,
-             oration_id, chain, store) = data
-
-            # Insert row into database
-            # Check if row exists. If yes don't add. If not add
-            datarow_exist_status = self.check_if_row_exists(
-                time, milliseconds, firstname, lastname, grammarlevel, tablename)
-            if datarow_exist_status:
-                print 'The data row you are trying to add might already exist'
-            else:
-                print 'Adding data row to database'
-                sql_statement = '''INSERT INTO %s VALUES ("%s", "%s", "%s", "%s", %d, %d, "%s", "%s", %s, %s, %s, "%s", "%s", "%s", "%s", "%s", "%s", "%s")''' % (
-                    tablename, transcript_si, transcript, decode_si,
-                    decode, int(conf), int(
-                        decode_time), callsrepath, acoustic_model,
-                    date, time, milliseconds, grammarlevel, firstname, lastname,
-                    oration_id, chain, store, row)
-                c.execute(sql_statement)
-
+            self.addrow(row, tablename)
+            
+            
     def getall(self, transcript_si=None, transcript=None, decode_si=None,
                decode=None, conf=None, decode_time=None, callsrepath=None, acoustic_model=None,
                date=None, time=None, milliseconds=None, grammarlevel=None, firstname=None, lastname=None,
