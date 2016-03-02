@@ -40,6 +40,9 @@ class DB():
     def __init__(self, sql_db_name):
         self.sql_db_name = sql_db_name
         self.conn = sqlite3.connect(sql_db_name)
+        # Check if this is right
+        self.conn.text_factory = str
+
 
     def close(self):
         print 'Comitting and closing the database'
@@ -67,12 +70,13 @@ class DB():
         sqlite_query = compose_sqlite_query(params, tablename)
         print 'Getting all db entries for parameters'
         c = self.conn.cursor()
-        rows = [row[-1] for row in c.execute(sqlite_query)]        
+        rows = [row[-1] for row in c.execute(sqlite_query)]    
+        #rows = [row for row in c.execute(sqlite_query)]    
         if rows:
             return rows
         else:
             print 'No such data in db for the given parameters'
-            return rows
+       
         
     def _get_table_names(self):
         c = self.conn.cursor()

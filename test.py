@@ -30,22 +30,15 @@ def demo_interactions_composer():
     
     sql_db_name = 'output.sqlite'
     db = dbhelper.getdb(sql_db_name)
-    rows = db.getall(conf_mode='>=', conf=500)
+    rows = db.getall(conf_mode='=', conf=999)
     db.close()
     
     interactionsfile_header = interactions_composer.get_interactionfile_header()
     interactions_composer.create_interactionsfile(interactionsfile_header, rows)
 
-
-    
-    
-if __name__ == '__main__':
-
-    #demo_adding_to_database()
-    #demo_fetching_from_database()
-    #demo_interactions_composer()
-    
+def bulk_add_interactions():
     # Bulk addition of interactions to db
+    
     sql_db_name = 'output.sqlite'
     db = dbhelper.getdb(sql_db_name)
     with open('all_int.txt', 'r') as f:
@@ -56,6 +49,27 @@ if __name__ == '__main__':
         interaction_filename = os.path.join(DATA_DIR, interaction)
         db.add(interaction_filename)
     db.close()
+    
+    
+    
+if __name__ == '__main__':
+
+    #demo_adding_to_database()
+    #demo_fetching_from_database()
+    
+    #demo_interactions_composer()
+    
+    # Get data from db
+    sql_db_name = 'output.sqlite'
+    db = dbhelper.getdb(sql_db_name)
+    values = []
+    for i in range(998, 1000):
+        values.append(len([row for row in db.getall(conf_mode='=', conf=i)]))
+    db.close()
+    
+    for conf, count in zip(range(998, 1000), values):
+        print conf, count
+    
     
 
     

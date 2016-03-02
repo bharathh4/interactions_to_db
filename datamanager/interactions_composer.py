@@ -24,7 +24,7 @@ def create_interactionsfile(interactionsfile_header, rows):
     with open(OUTPUT_INTERACTIONFILENAME, 'w') as f:
         f.write(interactionsfile_header + '\n')
         for row in rows:
-            row = row.encode('ascii', 'ignore').decode('ascii')
+            #row = row.encode('ascii', 'ignore').decode('ascii')
             try:
                 f.write(row)
             except:
