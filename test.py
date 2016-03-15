@@ -1,4 +1,4 @@
-from datamanager import dbhelper, interactions_composer, constants, util, orm_helper
+from datamanager import dbhelper, interactions_composer, constants, util, orm_helper, analyse
 DATA_DIR = constants.DATA_DIR
 import os
 
@@ -81,6 +81,6 @@ if __name__ == '__main__':
     #demo_fetching_from_database_using_orm()
     #demo_interactions_composer_using_orm()
     
-    
+    analyse.main()
    
 
