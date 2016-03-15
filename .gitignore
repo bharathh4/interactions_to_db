@@ -1,3 +1,9 @@
 git_helper.bat
 output.sqlite
 output.sqlite-journal
+output.interactions
+*.interactions
+*.sqlite
+*.sqlite-journal
+*.db
+*.pyc

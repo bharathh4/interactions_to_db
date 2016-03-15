@@ -42,4 +42,4 @@ def process(row):
     return (transcript_si, transcript, decode_si, decode, conf, decode_time,
             callsrepath, acoustic_model,
             date, time, milliseconds, grammarlevel, firstname, lastname, oration_id,
-            chain, store)
+            chain, store.replace('.callsre', ''))

@@ -1,6 +1,8 @@
-import sqlite3
+import sqlite3, random
 from util import process, get_rows
 
+
+    
 def compose_single_sqlite_condition(params, k, v):
     sql_condition = []
     if type(v) in [int, float]:
@@ -29,12 +31,82 @@ def compose_sqlite_query(params, tablename):
     print sql_statement
     return sql_statement
 
-
 def getdb(sql_db_name):
     db = DB(sql_db_name)
     return db
+ 
 
+ # Wrote a decorator to avoid deleting any code. If this is stable. delete original code with this decorator
+ 
+def testmode(func):
 
+    def inner(self, tablename):
+        # Creating table if it does not exist in db
+        c = self.conn.cursor()
+        if not self._check_if_table_exists(tablename):
+            sql_statement = '''CREATE TABLE %s (id INTEGER, 
+                                                transcript_si TEXT, 
+                                                transcript TEXT, 
+                                                decode_si TEXT,
+                                                decode TEXT, 
+                                                conf INTEGER, 
+                                                decode_time INTEGER, 
+                                                callsrepath TEXT, 
+                                                acoustic_model TEXT, 
+                                                date TEXT, 
+                                                time TEXT, 
+                                                milliseconds INTEGER, 
+                                                grammarlevel TEXT, 
+                                                firstname TEXT, 
+                                                lastname TEXT, 
+                                                oration_id INTEGER, 
+                                                chain TEXT, 
+                                                store TEXT, 
+                                                exactinteractionfilerow BLOB)''' % (tablename)
+            c.execute(sql_statement)
+    return inner
+
+def testmoderowadding(func):
+    def inner(self, row, tablename):
+        c = self.conn.cursor()
+
+        
+        (transcript_si, transcript, decode_si,
+             decode, conf, decode_time, callsrepath, acoustic_model,
+             date, time, milliseconds, grammarlevel, firstname, lastname,
+             oration_id, chain, store) = process(row)
+
+        # There might a better way. Breaking out of a function if the transcript column is empty.
+        # This files without transcription are skipped
+        if transcript in ['', '""', ' ', None]:
+            print 'No transcription for %s'
+            print callsrepath
+            return False
+            
+        # Insert row into database
+        # Check if row exists. If yes don't add. If not add
+        datarow_exist_status = self._check_if_row_exists(
+                time, milliseconds, firstname, lastname, grammarlevel, tablename)
+        if datarow_exist_status:
+            print 'The data row you are trying to add might already exist'
+        else:
+            print 'Adding data row to database'
+            id = int(random.random() *1000000000)
+            print id
+            sql_statement = '''INSERT INTO %s VALUES (%d, "%s", "%s", "%s", "%s", %d, %d, "%s", "%s", %s, %s, %s, "%s", "%s", "%s", "%s", "%s", "%s", "%s")''' % (
+                    tablename, id, transcript_si, transcript, decode_si,
+                    decode, int(conf), int(
+                        decode_time), callsrepath, acoustic_model,
+                    date, time, milliseconds, grammarlevel, firstname, lastname,
+                    oration_id, chain, store, row)
+            try:
+                c.execute(sql_statement)
+            except:
+                print 'Could not enter row to database'
+                
+    return inner                    
+    
+    
 class DB():
 
     def __init__(self, sql_db_name):
@@ -61,7 +133,7 @@ class DB():
                         
     def getall(self, transcript_si=None, transcript=None, decode_si=None,
                decode=None, conf_mode=None, conf=None, decode_time_mode=None, decode_time=None, callsrepath=None, acoustic_model=None,
-               date=None, time=None, milliseconds=None, grammarlevel=None, firstname=None, lastname=None,
+               date=None, time_mode=None, time=None, milliseconds_mode=None, milliseconds=None, grammarlevel=None, firstname=None, lastname=None,
                oration_id=None, chain=None, store=None, exactinteractionfilerow=None):
 
         # Get function parameters
@@ -83,7 +155,8 @@ class DB():
         rows = c.execute(
             '''SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;''')
         return [row for row in rows.fetchall()]
-        
+      
+    @testmode      
     def _create(self, tablename):
         # Creating table if it does not exist in db
         c = self.conn.cursor()
@@ -95,6 +168,7 @@ class DB():
                 tablename)
             c.execute(sql_statement)
             
+    @testmoderowadding
     def _addrow(self, row, tablename):
         c = self.conn.cursor()
 
@@ -106,7 +180,7 @@ class DB():
 
         # There might a better way. Breaking out of a function if the transcript column is empty.
         # This files without transcription are skipped
-        if transcript in ['', '""', ' ', None]:
+        if transcript in ['', '""', ' ', None, 'NULL', '(NULL)']:
             print 'No transcription for %s'
             print callsrepath
             return False
@@ -155,3 +229,4 @@ class DB():
             return False
 
 
+            
