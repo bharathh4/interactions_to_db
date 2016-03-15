@@ -78,9 +78,8 @@ if __name__ == '__main__':
     #demo_adding_interactions_to_database()
     #demo_fetching_from_database()
     #demo_interactions_composer()
-    demo_fetching_from_database_using_orm()
+    #demo_fetching_from_database_using_orm()
     #demo_interactions_composer_using_orm()
-    # Get data from db
     
     
    
