@@ -7,3 +7,4 @@ output.interactions
 *.sqlite-journal
 *.db
 *.pyc
+*.Interactions
