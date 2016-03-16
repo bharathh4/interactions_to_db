@@ -202,6 +202,10 @@ elif DATA_SOURCE is 'csv':
         users = list(set([user for user, _, _ in user_ca_rate_list + user_cr_rate_list + user_fa_rate_list + user_fr_rate_list]))
         user_metrics_rows = []
         for user in users:
+        
+            if hasNumbers(user):
+                continue
+            
             for User, rate, num_instances in user_ca_rate_list:
                 if user == User:
                     ca = rate
@@ -226,7 +230,76 @@ elif DATA_SOURCE is 'csv':
         type = code[sort_by_metric]   
         print tabulate(sorted(user_metrics_rows, key=lambda x: x[type]), headers=headers)    
                 
+    def get_power_users(filename, num_users=10):
+        csvfilename = filename
+        user_ca_rate_list, _, _, _ = get_user_metrics(
+            csvfilename)
+        power_users = [name for name, _, _ in sorted(user_ca_rate_list, key=lambda x: x[2], reverse=True)[:num_users]]
+        return filter(lambda user: not hasNumbers(user), power_users)
+        
+    def get_users_with_top_ca_rates(filename, num_users=10):
+        csvfilename = filename
+        user_ca_rate_list, _, _, _ = get_user_metrics(
+            csvfilename)
+        top_ca_users = [name for name, _, _ in sorted(user_ca_rate_list, key=lambda x: x[1], reverse=True)[:num_users]]
+        return filter(lambda user: not hasNumbers(user), top_ca_users)
                 
+    def get_users_with_lowest_fa_rates(filename, num_users=10):
+        csvfilename = filename
+        _, _, user_fa_rate_list, _ = get_user_metrics(
+            csvfilename)
+        low_fa_users = [name for name, _, _ in sorted(user_fa_rate_list, key=lambda x: x[1])[:num_users]]
+        return filter(lambda user: not hasNumbers(user), low_fa_users)
+
+    def get_successfull_power_users(filename, with_FA_considered=True, num_users=35):
+    
+    
+        power_users = get_power_users(filename, num_users=num_users)
+        top_ca_rates_users = get_users_with_top_ca_rates(filename, num_users=num_users)
+        low_fa_rate_users = get_users_with_lowest_fa_rates(filename, num_users=num_users)
+        
+        if with_FA_considered:
+            return list(sorted(list(set(power_users).intersection
+                                   (set(top_ca_rates_users)).intersection
+                                   (set(low_fa_rate_users))
+                                   )
+                              )
+                        )
+        else:
+            return list(sorted(list(set(power_users).intersection
+                                   (set(top_ca_rates_users))
+                                   )
+                              )
+                        )
+                        
+    def get_best_and_worst_ter_users(filename, num_users=10):
+        csvfilename = filename
+        _, _, user_fa_rate_list, user_fr_rate_list = get_user_metrics(
+            csvfilename)
+        
+        
+        user_ters = []
+        for (user, fa, _), (_, fr, _) in zip(sorted(user_fa_rate_list, key=lambda x: x[0]), sorted(user_fr_rate_list, key=lambda x: x[0])):
+            ter = fa + fr
+            if not hasNumbers(user):
+                user_ters.append((user, ter))
+                                      
+        best_ter = list(sorted(user_ters, key=lambda x: x[1]))[:num_users] # pick top num_users(say 10) users with best ter
+        worst_ter = list(sorted(user_ters, key=lambda x: x[1]))[-num_users:] # pick bottom num_users(say 10) users with best ter
+        
+        best_ter_users = [user for user, ter in best_ter]
+        worst_ter_users = [user for user, ter in worst_ter]
+        power_users = get_power_users(filename, num_users=num_users) 
+        
+        power_best_ter_users = list(set(power_users).intersection(set(best_ter_users)))
+        power_worst_ter_users = list(set(power_users).intersection(set(worst_ter_users)))
+        
+        return {'power_best_ter_users':power_best_ter_users, 'power_worst_ter_users': power_worst_ter_users}
+            
+    
+    def hasNumbers(inputString):
+        return any(char.isdigit() for char in inputString)
+        
     def main():
         print 'The data source has been set to csv'
         #filename = 'MIC-LEW_20160220-0229_all.csv'
@@ -235,6 +308,8 @@ elif DATA_SOURCE is 'csv':
         filename = 'data/MIC-LEW_20160220-0229_all.Interactions'
         # get_user_metrics(filename)
         print_user_metrics(filename, sort_by_metric='ter')
+        print 'Successful power users are ', get_successfull_power_users(filename, with_FA_considered=False, num_users=35)
+        print get_best_and_worst_ter_users(filename, num_users=15)
 
 
 if __name__ == '__main__':
