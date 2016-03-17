@@ -252,7 +252,8 @@ elif DATA_SOURCE is 'csv':
                                 'False accept rate',
                                 'Correct reject rate',
                                 'False reject rate'],
-                       tablefmt='fancy_grid', numalign="center")
+                       tablefmt='simple', numalign="center") + '\n'
+                       
 
         # print ingram_ca_rate , ingram_fa_rate , ingram_fr_rate ,
         # ingram_cr_rate
@@ -263,7 +264,7 @@ elif DATA_SOURCE is 'csv':
                                 'In grammar false accept rate',
                                 'In grammar correct reject rate',
                                 'In grammar false reject rate'],
-                       tablefmt='fancy_grid', numalign="center")
+                       tablefmt='simple', numalign="center") + '\n'
 
         # print outgram_fa_rate , outgram_cr_rate , outgram_fr_rate
         data = (outgram_fa_rate, outgram_cr_rate, outgram_fr_rate)
@@ -272,7 +273,7 @@ elif DATA_SOURCE is 'csv':
                        headers=['Out of grammar false accept rate',
                                 'Out of grammar correct reject rate',
                                 'Out of grammar false reject rate'],
-                       tablefmt='fancy_grid', numalign="center")
+                       tablefmt='simple', numalign="center") + '\n'
 
     def get_user_metrics(filename, threshold=100):
         '''returns metrics like FR, FA, CA, CR per user
@@ -360,10 +361,10 @@ elif DATA_SOURCE is 'csv':
             user_metrics_rows.append((user, ca, cr, fa, fr, ter, num))
 
         code = {'name': 0, 'ca': 1, 'cr': 2, 'fa': 3,
-                'fr': 4, 'ter': 5, 'num_instances': 5}
+                'fr': 4, 'ter': 5, 'num_instances': 6}
         type = code[sort_by_metric]
         print tabulate(sorted(user_metrics_rows, key=lambda x: x[type]),
-        headers=headers, tablefmt="fancy_grid", numalign="center")
+        headers=headers, tablefmt="simple", numalign="center") + '\n'
 
     def get_power_users(filename, num_users=10):
         '''Gets a list of users by highest usage count/occurences in 
@@ -444,8 +445,89 @@ elif DATA_SOURCE is 'csv':
             set(power_users).intersection(set(best_ter_users)))
         power_worst_ter_users = list(
             set(power_users).intersection(set(worst_ter_users)))
+          
+        '''This might seem confusing. All it is doing is using the power user list and populating
+        another list if a name in the power list is in best ter list to achieve a sort using number of instances of user'''  
+        power_best_ter_users_sorted = []
+        for user in power_users:
+            if user in power_best_ter_users:
+                power_best_ter_users_sorted.append(user)
+        '''This might seem confusing. All it is doing is using the power user list and populating
+        another list if a name in the power list is in worst ter list to achieve a sort using number of instances of user'''      
+        power_worst_ter_users_sorted = []
+        for user in power_users:
+            if user in power_worst_ter_users:
+                power_worst_ter_users_sorted.append(user)
+        # Limits number of users to 5
+        if len(power_best_ter_users_sorted) >= 5:
+            power_best_ter_users_sorted = power_best_ter_users_sorted[:5]
+        if len(power_worst_ter_users_sorted) >= 5:
+            power_worst_ter_users_sorted = power_worst_ter_users_sorted[:5]
+            
+        return {'power_best_ter_users': power_best_ter_users_sorted, 'power_worst_ter_users': power_worst_ter_users_sorted}
+          
+    def how_metrics_change_with_thresholds(filename):
+        '''TODO Move printing to a separate method'''
+        thresholds = range(0, 500, 25)
+        threshold_overall_metrics = []
+        threshold_ingram_metrics = []
+        threshold_outgram_metrics = []
+        for threshold in thresholds:
+            info = get_overall_metrics(filename, threshold=threshold)
+            (ca_rate, fa_rate, cr_rate, fr_rate) = info['overall']
+            (ingram_ca_rate, ingram_fa_rate, ingram_cr_rate, ingram_fr_rate) = info['ingram']
+            (outgram_fa_rate, outgram_cr_rate, outgram_fr_rate) = info['outgram']
+        
+            threshold_overall_metrics.append((threshold, ca_rate, fa_rate, cr_rate, fr_rate, fa_rate + fr_rate))
+            threshold_ingram_metrics.append((threshold, ingram_ca_rate, ingram_fa_rate, ingram_cr_rate, ingram_fr_rate, ingram_fa_rate + ingram_fr_rate))
+            threshold_outgram_metrics.append((threshold, outgram_fa_rate, outgram_cr_rate, outgram_fr_rate, outgram_fa_rate + outgram_fr_rate))
+            
+        print tabulate(threshold_overall_metrics, headers=['Threshold',
+                                'Correct accept rate',
+                                'False accept rate',
+                                'Correct reject rate',
+                                'False reject rate',
+                                'Total error rate'],
+                       tablefmt='simple', numalign="center") + '\n'
+                             
+        print tabulate(threshold_ingram_metrics, headers=['Threshold',
+        'In grammar correct accept rate',
+                                'In grammar false accept rate',
+                                'In grammar correct reject rate',
+                                'In grammar false reject rate',
+                                'Total error rate'],
+                       tablefmt='simple', numalign="center") + '\n'
+                      
+        print tabulate(threshold_outgram_metrics, headers=['Threshold',
+        'Out of grammar false accept rate',
+                                'Out of grammar correct reject rate',
+                                'Out of grammar false reject rate',
+                                'Total error rate'],
+                       tablefmt='simple', numalign="center") + '\n'
 
-        return {'power_best_ter_users': power_best_ter_users, 'power_worst_ter_users': power_worst_ter_users}
+    def transcript_tag_statistics(filename):
+        
+        tag_counter = 0
+        clip_click_tag_counter = 0
+        noise_tag_counter = 0
+        background_speech_tag_counter = 0
+        total = 0
+        for row in get_reader(filename):
+            total = total + 1
+            (transcript_si, transcript, decode_si, decode, conf,
+                decode_time, callsrepath, acoustic_model, date, time,
+                milliseconds, grammarlevel, firstname, lastname,
+                oration_id, chain, store) = process(row)
+            if '++' in transcript:
+                tag_counter = tag_counter + 1
+            if 'CLIP' in transcript or 'CLICK' in transcript:
+                clip_click_tag_counter = clip_click_tag_counter + 1
+            if 'NOISE' in transcript:
+                noise_tag_counter = noise_tag_counter + 1
+            if 'SPEECH' in transcript:
+                background_speech_tag_counter = background_speech_tag_counter + 1
+                
+        print tabulate([[100*float(tag_counter)/total, 100*float(clip_click_tag_counter)/total, 100*float(noise_tag_counter)/total, 100*float(background_speech_tag_counter)/total]], headers=['All tags percentage', 'Clip Click percentage', 'Noise percentage', 'Background Speech percentage'], tablefmt='simple', numalign='center')
 
     def main():
         print 'The data source has been set to csv\n'
@@ -453,12 +535,20 @@ elif DATA_SOURCE is 'csv':
         filename = 'data/test1.interactions'
         filename = 'data/converted.csv'
         filename = 'data/MIC-LEW_20160220-0229_all.Interactions'
+        #filename = 'data/TCS-AUS_20150905_ALL.Interactions'
         # get_user_metrics(filename)
-        #print_user_metrics(filename, sort_by_metric='ter')
-        print 'Successful power users are ', get_successfull_power_users(filename, with_FA_considered=False, num_users=35)
-        print get_best_and_worst_ter_users(filename, num_users=15)
+        
+        print 'Successful power users according one criteria are', ', '.join(get_successfull_power_users(filename, with_FA_considered=True, num_users=40))
+        power_best_worst_ter_users = get_best_and_worst_ter_users(filename, num_users=20)
+        print 'Sucessfull power users according to another criteria (TER) are', ', '.join(power_best_worst_ter_users['power_best_ter_users'])
+        print 'Struggling power users according to (TER) are', ', '.join(power_best_worst_ter_users['power_worst_ter_users'])
+        print 
+        
+        print_user_metrics(filename, sort_by_metric='ter')
         #get_overall_metrics(filename, threshold=100)
         #print_overall_metrics(filename, threshold=100)
+        how_metrics_change_with_thresholds(filename)
+        transcript_tag_statistics(filename)
 
 
 if __name__ == '__main__':
