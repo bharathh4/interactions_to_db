@@ -54,16 +54,19 @@ elif DATA_SOURCE is 'csv':
     import csv
 
     def hasNumbers(inputString):
+        '''Returns true if numbers found in string'''
         return any(char.isdigit() for char in inputString)
 
     def interaction2csv(interactionfilename, output_csvfilename):
+        '''Converts a interaction file to a csv file and saves it in a default 
+        location for later retrieval'''
         with open(interactionfilename, 'r') as fread:
             str_to_write = ''.join([line for line in fread if len(line) > 100])
             with open(output_csvfilename, 'w') as foutput:
                 foutput.write(str_to_write)
 
     def get_reader(filename):
-        # Gets the reader object for a csv/interaction file
+        '''Gets the reader object for a csv/interaction file'''
 
         if (filename.endswith('interaction') or
                 filename.endswith('Interaction') or
@@ -86,7 +89,8 @@ elif DATA_SOURCE is 'csv':
             print 'DEBUG : get_reader() The file couldnt be opened'
 
     def process(row):
-
+        '''The lumenvox interaction file has a certain format. The function 
+        unpacks every interaction file row and extracts information'''
         (transcript_si,
          transcript,
          decode_si,
@@ -108,46 +112,59 @@ elif DATA_SOURCE is 'csv':
          _
          ) = row
 
-        date, time, milliseconds, grammarlevel, fullname, oration_id, chain, store = callsrepath.split(
-            '\\')[-1].split('_')
+        (date, time, milliseconds, grammarlevel, fullname, oration_id,
+         chain, store) = callsrepath.split('\\')[-1].split('_')
 
         try:
             firstname, lastname = fullname.split(' ')
         except:
             firstname, lastname = fullname, fullname
 
-        return (transcript_si, transcript, decode_si, decode, conf, decode_time,
-                callsrepath, acoustic_model,
-                date, time, milliseconds, grammarlevel, firstname, lastname, oration_id,
-                chain, store.replace('.callsre', ''))
+        return (transcript_si, transcript, decode_si, decode, conf,
+                decode_time, callsrepath, acoustic_model, date, time,
+                milliseconds, grammarlevel, firstname, lastname,
+                oration_id, chain, store.replace('.callsre', ''))
 
-    def compute_cain(transcript, decode, conf, threshold):
-
+    def compute_ca(transcript, decode, conf, threshold):
+        '''Computes correct accept rate. Takes a transcript semantic intent 
+        and decode semantic intent, the decode confidence and threshold as 
+        parameters'''
         if transcript == decode and int(conf) >= threshold:
             return True
         else:
             return False
 
-    def compute_frin(transcript, decode, conf, threshold):
+    def compute_fr(transcript, decode, conf, threshold):
+        '''Computes false reject rate. Takes a transcript semantic intent and 
+        decode semantic intent, the decode confidence and threshold as 
+        parameters'''
         if transcript == decode and int(conf) < threshold:
             return True
         else:
             return False
 
-    def compute_fain(transcript, decode, conf, threshold):
+    def compute_fa(transcript, decode, conf, threshold):
+        '''Computes false accept rate. Takes a transcript semantic intent and 
+        decode semantic intent, the decode confidence and threshold as 
+        parameters'''
         if transcript != decode and int(conf) >= threshold:
             return True
         else:
             return False
 
-    def compute_crin(transcript, decode, conf, threshold):
+    def compute_cr(transcript, decode, conf, threshold):
+        '''Computes correct reject rate. Takes a transcript semantic intent and
+        decode semantic intent, the decode confidence and threshold as 
+        parameters'''
         if transcript != decode and int(conf) < threshold:
             return True
         else:
             return False
 
     def get_overall_metrics(filename, threshold=100):
-        # computes CA, CR, FR, FA overall and also for in-grammar and out-grammar
+        '''computes CA, CR, FR, FA overall and also for in-grammar and out-grammar.
+        Returns dictionary of overall CA, CR, FR, FA, in grammar CA, CR, FR, FA
+        and out of grammar CA, CR, FR, FA'''
         ca_list, cr_list, fa_list, fr_list = [], [], [], []
 
         reader = get_reader(filename)
@@ -157,12 +174,12 @@ elif DATA_SOURCE is 'csv':
              date, time, milliseconds, grammarlevel, firstname, lastname, oration_id,
              chain, store) = process(row)
 
-            ca, fa, cr, fr = (compute_cain(transcript_si, decode_si, conf, threshold),
-                              compute_fain(
-                                  transcript_si, decode_si, conf, threshold),
-                              compute_crin(
-                                  transcript_si, decode_si, conf, threshold),
-                              compute_frin(transcript_si, decode_si, conf, threshold))
+            ca, fa, cr, fr = (compute_ca(transcript_si, decode_si, conf, threshold),
+                              compute_fa(transcript_si, decode_si,
+                                         conf, threshold),
+                              compute_cr(transcript_si, decode_si,
+                                         conf, threshold),
+                              compute_fr(transcript_si, decode_si, conf, threshold))
 
             if transcript_si in ['~No interpretations']:
                 gram_status = 'OOG'
@@ -220,6 +237,7 @@ elif DATA_SOURCE is 'csv':
                 'outgram': (outgram_fa_rate, outgram_cr_rate, outgram_fr_rate)}
 
     def print_overall_metrics(filename, threshold=100):
+        '''Prints all grammar metrics'''
         info = get_overall_metrics(filename, threshold=100)
         (ca_rate, fa_rate, cr_rate, fr_rate) = info['overall']
         (ingram_ca_rate, ingram_fa_rate, ingram_cr_rate,
@@ -233,7 +251,8 @@ elif DATA_SOURCE is 'csv':
                        headers=['Correct accept rate',
                                 'False accept rate',
                                 'Correct reject rate',
-                                'False reject rate'], tablefmt='fancy_grid', numalign="center")
+                                'False reject rate'],
+                       tablefmt='fancy_grid', numalign="center")
 
         # print ingram_ca_rate , ingram_fa_rate , ingram_fr_rate ,
         # ingram_cr_rate
@@ -243,7 +262,8 @@ elif DATA_SOURCE is 'csv':
                        headers=['In grammar correct accept rate',
                                 'In grammar false accept rate',
                                 'In grammar correct reject rate',
-                                'In grammar false reject rate'], tablefmt='fancy_grid', numalign="center")
+                                'In grammar false reject rate'],
+                       tablefmt='fancy_grid', numalign="center")
 
         # print outgram_fa_rate , outgram_cr_rate , outgram_fr_rate
         data = (outgram_fa_rate, outgram_cr_rate, outgram_fr_rate)
@@ -251,13 +271,15 @@ elif DATA_SOURCE is 'csv':
         print tabulate([data],
                        headers=['Out of grammar false accept rate',
                                 'Out of grammar correct reject rate',
-                                'Out of grammar false reject rate'], tablefmt='fancy_grid', numalign="center")
+                                'Out of grammar false reject rate'],
+                       tablefmt='fancy_grid', numalign="center")
 
     def get_user_metrics(filename, threshold=100):
-        # returns metrics like FR, FA, CA, CR per user
-        # Input can be a .csv file or .interaction file.
-        # Assumes Lumenvox interactionfile csv (no headers and renamed to .csv) or the entire Lumenvox interaction file with
-        # (untouched with headers intact and .interaction extension)
+        '''returns metrics like FR, FA, CA, CR per user
+        Input can be a .csv file or .interaction file.
+        Assumes Lumenvox interactionfile csv (no headers and renamed to .csv) 
+        or the entire Lumenvox interaction file with (untouched with headers 
+        intact and .interaction extension)'''
 
         users_ca_dict, users_cr_dict, users_fa_dict, users_fr_dict = {}, {}, {}, {}
 
@@ -268,12 +290,12 @@ elif DATA_SOURCE is 'csv':
              date, time, milliseconds, grammarlevel, firstname, lastname, oration_id,
              chain, store) = process(row)
 
-            ca, fa, cr, fr = (compute_cain(transcript_si, decode_si, conf, threshold),
-                              compute_fain(
+            ca, fa, cr, fr = (compute_ca(transcript_si, decode_si, conf, threshold),
+                              compute_fa(
                                   transcript_si, decode_si, conf, threshold),
-                              compute_crin(
+                              compute_cr(
                                   transcript_si, decode_si, conf, threshold),
-                              compute_frin(transcript_si, decode_si, conf, threshold))
+                              compute_fr(transcript_si, decode_si, conf, threshold))
 
             users_ca_dict.setdefault(firstname + '_' + lastname, [])
             users_ca_dict[firstname + '_' + lastname].append(ca)
@@ -300,10 +322,11 @@ elif DATA_SOURCE is 'csv':
         return user_ca_rate_list, user_cr_rate_list, user_fa_rate_list, user_fr_rate_list
 
     def print_user_metrics(filename, sort_by_metric='ca'):
-        # Calls the get_user_metrics and displays it
+        ''' Calls the get_user_metrics and displays it in a sorted manner'''
         csvfilename = filename
-        user_ca_rate_list, user_cr_rate_list, user_fa_rate_list, user_fr_rate_list = get_user_metrics(
-            csvfilename)
+        
+        (user_ca_rate_list, user_cr_rate_list, 
+        user_fa_rate_list, user_fr_rate_list) = get_user_metrics(csvfilename)
 
         headers = ['USER', 'Correct accept rate', 'Correct reject rate', 'False accept rate',
                    'False reject rate', 'Total error rate', 'Number of instances']
@@ -339,9 +362,12 @@ elif DATA_SOURCE is 'csv':
         code = {'name': 0, 'ca': 1, 'cr': 2, 'fa': 3,
                 'fr': 4, 'ter': 5, 'num_instances': 5}
         type = code[sort_by_metric]
-        print tabulate(sorted(user_metrics_rows, key=lambda x: x[type]), headers=headers, tablefmt="fancy_grid", numalign="center")
+        print tabulate(sorted(user_metrics_rows, key=lambda x: x[type]),
+        headers=headers, tablefmt="fancy_grid", numalign="center")
 
     def get_power_users(filename, num_users=10):
+        '''Gets a list of users by highest usage count/occurences in 
+        interaction file.'''
         csvfilename = filename
         user_ca_rate_list, _, _, _ = get_user_metrics(
             csvfilename)
@@ -350,6 +376,7 @@ elif DATA_SOURCE is 'csv':
         return filter(lambda user: not hasNumbers(user), power_users)
 
     def get_users_with_top_ca_rates(filename, num_users=10):
+        '''Gets a list of users with highest correct accept rates'''
         csvfilename = filename
         user_ca_rate_list, _, _, _ = get_user_metrics(
             csvfilename)
@@ -358,6 +385,7 @@ elif DATA_SOURCE is 'csv':
         return filter(lambda user: not hasNumbers(user), top_ca_users)
 
     def get_users_with_lowest_fa_rates(filename, num_users=10):
+        '''Gets a list of users with lowest false accept rates'''
         csvfilename = filename
         _, _, user_fa_rate_list, _ = get_user_metrics(
             csvfilename)
@@ -366,7 +394,9 @@ elif DATA_SOURCE is 'csv':
         return filter(lambda user: not hasNumbers(user), low_fa_users)
 
     def get_successfull_power_users(filename, with_FA_considered=True, num_users=35):
-
+        '''Gets a list of power users. Gets a list of top CA rates user. Gets 
+        a list of lowest FA rates. Returns an intersection of these three lists
+        '''
         power_users = get_power_users(filename, num_users=num_users)
         top_ca_rates_users = get_users_with_top_ca_rates(
             filename, num_users=num_users)
@@ -388,6 +418,9 @@ elif DATA_SOURCE is 'csv':
                         )
 
     def get_best_and_worst_ter_users(filename, num_users=10):
+        '''Tries to find an intersection of users who are power users and 
+        lowest total error rate. Also tries to find an intersection of users 
+        who are power users and highest total error rate'''
         csvfilename = filename
         _, _, user_fa_rate_list, user_fr_rate_list = get_user_metrics(
             csvfilename)
@@ -421,11 +454,11 @@ elif DATA_SOURCE is 'csv':
         filename = 'data/converted.csv'
         filename = 'data/MIC-LEW_20160220-0229_all.Interactions'
         # get_user_metrics(filename)
-        print_user_metrics(filename, sort_by_metric='ter')
-        # print 'Successful power users are ', get_successfull_power_users(filename, with_FA_considered=False, num_users=35)
-        # print get_best_and_worst_ter_users(filename, num_users=15)
-        get_overall_metrics(filename, threshold=100)
-        print_overall_metrics(filename, threshold=100)
+        #print_user_metrics(filename, sort_by_metric='ter')
+        print 'Successful power users are ', get_successfull_power_users(filename, with_FA_considered=False, num_users=35)
+        print get_best_and_worst_ter_users(filename, num_users=15)
+        #get_overall_metrics(filename, threshold=100)
+        #print_overall_metrics(filename, threshold=100)
 
 
 if __name__ == '__main__':
