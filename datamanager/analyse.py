@@ -1,6 +1,7 @@
 import dbhelper
 import orm_helper
 import os
+import re
 import math
 from constants import DATA_DIR, DB_PATH, DATA_SOURCE
 from collections import Counter
@@ -282,7 +283,7 @@ elif DATA_SOURCE is 'csv':
         or the entire Lumenvox interaction file with (untouched with headers 
         intact and .interaction extension)'''
 
-        users_ca_dict, users_cr_dict, users_fa_dict, users_fr_dict = {}, {}, {}, {}
+        users_ca_dict, users_cr_dict, users_fa_dict, users_fr_dict, user_conf_dict = {}, {}, {}, {}, {}
 
         reader = get_reader(filename)
         for row in reader:
@@ -310,6 +311,9 @@ elif DATA_SOURCE is 'csv':
             users_fr_dict.setdefault(firstname + '_' + lastname, [])
             users_fr_dict[firstname + '_' + lastname].append(fr)
 
+            user_conf_dict.setdefault(firstname + '_' + lastname, [])
+            user_conf_dict[firstname + '_' + lastname].append(conf)
+
         # return users_ca_dict, users_cr_dict, users_fa_dict, users_fr_dict
         user_ca_rate_list = [(user, 100 * float(sum(vals)) / len(vals), len(vals))
                              for user, vals in users_ca_dict.items()]
@@ -319,18 +323,19 @@ elif DATA_SOURCE is 'csv':
                              for user, vals in users_fa_dict.items()]
         user_fr_rate_list = [(user, 100 * float(sum(vals)) / len(vals), len(vals))
                              for user, vals in users_fr_dict.items()]
-
-        return user_ca_rate_list, user_cr_rate_list, user_fa_rate_list, user_fr_rate_list
+        user_mean_conf_list = [(user, float(sum(vals)) / len(vals), len(vals))
+                               for user, vals in user_conf_dict.items()]
+        return user_ca_rate_list, user_cr_rate_list, user_fa_rate_list, user_fr_rate_list, user_mean_conf_list
 
     def print_user_metrics(filename, sort_by_metric='ca'):
         ''' Calls the get_user_metrics and displays it in a sorted manner'''
         csvfilename = filename
 
         (user_ca_rate_list, user_cr_rate_list,
-         user_fa_rate_list, user_fr_rate_list) = get_user_metrics(csvfilename)
+         user_fa_rate_list, user_fr_rate_list, user_mean_conf_list) = get_user_metrics(csvfilename)
 
         headers = ['USER', 'Correct accept rate', 'Correct reject rate', 'False accept rate',
-                   'False reject rate', 'Total error rate', 'Number of instances']
+                   'False reject rate', 'Total error rate', 'Mean conf', 'Number of instances']
 
         users = list(set([user for user, _, _ in user_ca_rate_list +
                           user_cr_rate_list + user_fa_rate_list + user_fr_rate_list]))
@@ -357,11 +362,17 @@ elif DATA_SOURCE is 'csv':
                 if user == User:
                     fr = rate
                     break
+
+            for User, conf, num_instances in user_mean_conf_list:
+                if user == User:
+                    mean_conf = conf
+                    break
             ter = fa + fr
-            user_metrics_rows.append((user, ca, cr, fa, fr, ter, num))
+            user_metrics_rows.append(
+                (user, ca, cr, fa, fr, ter, mean_conf, num))
 
         code = {'name': 0, 'ca': 1, 'cr': 2, 'fa': 3,
-                'fr': 4, 'ter': 5, 'num_instances': 6}
+                'fr': 4, 'ter': 5, 'mean_conf': 6, 'num_instances': 7}
         type = code[sort_by_metric]
         print tabulate(sorted(user_metrics_rows, key=lambda x: x[type]),
                        headers=headers, tablefmt="simple", numalign="center") + '\n'
@@ -370,7 +381,7 @@ elif DATA_SOURCE is 'csv':
         '''Gets a list of users by highest usage count/occurences in 
         interaction file.'''
         csvfilename = filename
-        user_ca_rate_list, _, _, _ = get_user_metrics(
+        user_ca_rate_list, _, _, _, _ = get_user_metrics(
             csvfilename)
         power_users = [name for name, _, _ in sorted(
             user_ca_rate_list, key=lambda x: x[2], reverse=True)[:num_users]]
@@ -379,7 +390,7 @@ elif DATA_SOURCE is 'csv':
     def get_users_with_top_ca_rates(filename, num_users=10):
         '''Gets a list of users with highest correct accept rates'''
         csvfilename = filename
-        user_ca_rate_list, _, _, _ = get_user_metrics(
+        user_ca_rate_list, _, _, _, _ = get_user_metrics(
             csvfilename)
         top_ca_users = [name for name, _, _ in sorted(
             user_ca_rate_list, key=lambda x: x[1], reverse=True)[:num_users]]
@@ -388,7 +399,7 @@ elif DATA_SOURCE is 'csv':
     def get_users_with_lowest_fa_rates(filename, num_users=10):
         '''Gets a list of users with lowest false accept rates'''
         csvfilename = filename
-        _, _, user_fa_rate_list, _ = get_user_metrics(
+        _, _, user_fa_rate_list, _, _ = get_user_metrics(
             csvfilename)
         low_fa_users = [name for name, _, _ in sorted(
             user_fa_rate_list, key=lambda x: x[1])[:num_users]]
@@ -423,7 +434,7 @@ elif DATA_SOURCE is 'csv':
         lowest total error rate. Also tries to find an intersection of users 
         who are power users and highest total error rate'''
         csvfilename = filename
-        _, _, user_fa_rate_list, user_fr_rate_list = get_user_metrics(
+        _, _, user_fa_rate_list, user_fr_rate_list, _ = get_user_metrics(
             csvfilename)
 
         user_ters = []
@@ -469,8 +480,7 @@ elif DATA_SOURCE is 'csv':
         return {'power_best_ter_users': power_best_ter_users_sorted, 'power_worst_ter_users': power_worst_ter_users_sorted}
 
     def get_metrics_change_with_thresholds(filename):
-        '''TODO Move printing to a separate method'''
-        thresholds = range(0, 500, 25)
+        thresholds = range(0, 500, 20)
         threshold_overall_metrics = []
         threshold_ingram_metrics = []
         threshold_outgram_metrics = []
@@ -541,8 +551,13 @@ elif DATA_SOURCE is 'csv':
         return (tag_counter, clip_click_tag_counter, noise_tag_counter, background_speech_tag_counter, total)
 
     def print_transcript_tag_statistics(tag_counter, clip_click_tag_counter, noise_tag_counter, background_speech_tag_counter, total):
-        #print tabulate([[100 * float(tag_counter) / total, 100 * float(clip_click_tag_counter) / total, 100 * float(noise_tag_counter) / total, 100 * float(background_speech_tag_counter) / total]], headers=['All tags percentage', 'Clip Click percentage', 'Noise percentage', 'Background Speech percentage'], tablefmt='simple', numalign='center')
-        
+        # print tabulate([[100 * float(tag_counter) / total, 100 *
+        # float(clip_click_tag_counter) / total, 100 * float(noise_tag_counter)
+        # / total, 100 * float(background_speech_tag_counter) / total]],
+        # headers=['All tags percentage', 'Clip Click percentage', 'Noise
+        # percentage', 'Background Speech percentage'], tablefmt='simple',
+        # numalign='center')
+
         print
         print '{:<30}'.format('All tags percentage') + ": " + str(100 * float(tag_counter) / total)
         print '{:<30}'.format('Clip Click percentage') + ": " + str(100 * float(clip_click_tag_counter) / total)
@@ -574,7 +589,7 @@ elif DATA_SOURCE is 'csv':
         print '{:<30}'.format('G2 count') + ": " + str(grammar_statistics['G2']['count'])
         print '{:<30}'.format('G1 mean confidence') + ": " + str(sum(grammar_statistics['G1']['confs']) / float(len(grammar_statistics['G1']['confs'])))
         print '{:<30}'.format('G2 mean confidence') + ": " + str(sum(grammar_statistics['G2']['confs']) / float(len(grammar_statistics['G2']['confs'])))
-        
+
     def get_command_confs(filename):
         commands_conf = {}
         for row in get_reader(filename):
@@ -590,34 +605,77 @@ elif DATA_SOURCE is 'csv':
         return commands_conf
 
     def print_commands_conf(command_confs):
-        comamnd_mean_conf = [(command, sum(confs) / float(len(confs))) for command, confs in command_confs.items()]
-            
+        command_mean_conf = [(command, sum(confs) / float(len(confs)), len(confs))
+                             for command, confs in command_confs.items()]
+
+        command_mean_conf = sorted(command_mean_conf, key=lambda x: x[2])
+
         print
-        print tabulate(comamnd_mean_conf, headers=['Commands', 'Mean Confidence'],
+        print tabulate(command_mean_conf, headers=['Commands', 'Mean Confidence', 'Number of Instances'],
                        tablefmt='simple', numalign="center") + '\n'
 
+    def clean_up_phrase(phrase):
+        p = re.compile(ur'(\+\+.*\+\+)')
+        result = re.search(p, phrase)
+        temp = phrase
+        if result:
+            for item in result.groups()[0].split(' '):
+                temp = temp.replace(item, '')
+
+        return temp
+
     def get_OOV_words(filename):
-    
+
         oov_words = []
         for row in get_reader(filename):
             (transcript_si, transcript, decode_si, decode, conf,
                 decode_time, callsrepath, acoustic_model, date, time,
                 milliseconds, grammarlevel, firstname, lastname,
                 oration_id, chain, store) = process(row)
-                
+
             if transcript_si in ['~No interpretations']:
                 oov_words.append(transcript)
-                
-        oog_counter = dict(Counter(filter(lambda x: '++' not in x, (' '.join(oov_words).split(' ')))))
-        return oog_counter       
-        
-    def print_oog_word_count(oog_counter):
-        sorted_oog_counts = [(oog_word, count)  for oog_word, count in sorted(oog_counter.items(), key=lambda x: x[1], reverse=True)]
+
+        oog_phrase_counter = dict(
+            Counter([clean_up_phrase(phrase) for phrase in oov_words]))
+        oog_counter = dict(
+            Counter(filter(lambda x: '++' not in x, (' '.join(oov_words).split(' ')))))
+        return oog_counter, oog_phrase_counter
+
+    def print_oog_word_count(oog_counter, oog_phrase_counter):
+        sorted_oog_counts = [(oog_word, count) for oog_word, count in sorted(
+            oog_counter.items(), key=lambda x: x[1], reverse=True)]
+
+        # This is because the same oog doesn't said over and over agian
         print
         print tabulate(sorted_oog_counts, headers=['OOG word', 'Count'],
-                       tablefmt='simple', numalign="center") + '\n'    
+                       tablefmt='simple', numalign="center") + '\n'
+        print oog_phrase_counter  # Nothing to aggregate and show in this.
 
-                       
+    def get_ingram_outgram_percentage(filename):
+
+        oov_count = 0
+        total = 0
+        for row in get_reader(filename):
+            (transcript_si, transcript, decode_si, decode, conf,
+                decode_time, callsrepath, acoustic_model, date, time,
+                milliseconds, grammarlevel, firstname, lastname,
+                oration_id, chain, store) = process(row)
+            total += 1
+            if transcript_si in ['~No interpretations']:
+                oov_count += 1
+
+        oog_percent = 100 * float(oov_count) / total
+        ing_percent = 100 - oog_percent
+
+        return {'ing_percent': ing_percent, 'oog_percent': oog_percent}
+
+    def print_ingram_out_gram(ing_percent=100, oog_percent=0):
+        print
+        print '{:<30}'.format('In grammar percentage') + ": " + str(ing_percent)
+        print '{:<30}'.format('Out of grammar percentage') + ": " + str(oog_percent)
+        print
+
     def main():
         print 'The data source has been set to csv\n'
         #filename = 'MIC-LEW_20160220-0229_all.csv'
@@ -627,7 +685,6 @@ elif DATA_SOURCE is 'csv':
         #filename = 'data/TCS-AUS_20150905_ALL.Interactions'
         # get_user_metrics(filename)
 
-        
         print 'Successful power users according one criteria are', ', '.join(get_successfull_power_users(filename, with_FA_considered=True, num_users=40))
         power_best_worst_ter_users = get_best_and_worst_ter_users(
             filename, num_users=20)
@@ -635,18 +692,20 @@ elif DATA_SOURCE is 'csv':
         print 'Struggling power users according to (TER) are', ', '.join(power_best_worst_ter_users['power_worst_ter_users'])
         print
 
+        print_transcript_tag_statistics(
+            *get_transcript_tag_statistics(filename))
+
+        print_grammar_statistics(get_grammar_statistics(filename))
+        print_commands_conf(get_command_confs(filename))
+        print_ingram_out_gram(**get_ingram_outgram_percentage(filename))
+
         print_user_metrics(filename, sort_by_metric='ter')
 
         print_metrics_change_with_thresholds(
             *get_metrics_change_with_thresholds(filename))
-        print_transcript_tag_statistics(
-            *get_transcript_tag_statistics(filename))
-        
-        
-        print_grammar_statistics(get_grammar_statistics(filename))
-        print_commands_conf(get_command_confs(filename))
 
-        print_oog_word_count(get_OOV_words(filename))
+        print_oog_word_count(*get_OOV_words(filename))
+
 
 if __name__ == '__main__':
     main()
