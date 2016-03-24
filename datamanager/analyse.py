@@ -179,7 +179,7 @@ elif DATA_SOURCE is 'csv':
              chain, store) = process(row)
 
             if day is not None:
-                expr = ur'(2016|2017|2018|2019)([0-1][0-9])([0-3][0-9])'
+                expr = ur'(2014|2015|2016|2017|2018|2019)([0-1][0-9])([0-3][0-9])'
                 p = re.compile(expr)
                 result = re.search(p, date)
                 Year, Month, Day = map(int, result.groups()[:3])
@@ -695,7 +695,7 @@ elif DATA_SOURCE is 'csv':
         print
 
     def get_dates(filename):
-        expr = ur'(2016|2017|2018|2019)([0-1][0-9])([0-3][0-9])'
+        expr = ur'(2014|2015|2016|2017|2018|2019)([0-1][0-9])([0-3][0-9])'
         p = re.compile(expr)
         dates_list = []
         for row in get_reader(filename):
@@ -816,8 +816,8 @@ elif DATA_SOURCE is 'csv':
         #filename = 'MIC-LEW_20160220-0229_all.csv'
         filename = 'data/test1.interactions'
         filename = 'data/converted.csv'
-        filename = 'data/MIC-LEW_20160220-0229_all.Interactions'
-        #filename = 'data/TCS-AUS_20150905_ALL.Interactions'
+        #filename = 'data/MIC-LEW_20160220-0229_all.Interactions'
+        filename = 'data/TCS-AUS_20150905_ALL.Interactions'
         # get_user_metrics(filename)
 
         
