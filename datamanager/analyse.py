@@ -748,7 +748,13 @@ elif DATA_SOURCE is 'csv':
                            tablefmt='simple', numalign="center") + '\n'
     
     
-    
+    def get_times(filename):
+        for row in get_reader(filename):
+            (transcript_si, transcript, decode_si, decode, conf,
+         decode_time, callsrepath, acoustic_model, date, time,
+         milliseconds, grammarlevel, firstname, lastname,
+         oration_id, chain, store) = process(row)
+        
     
     def main():
         print 'The data source has been set to csv\n'
@@ -759,7 +765,7 @@ elif DATA_SOURCE is 'csv':
         #filename = 'data/TCS-AUS_20150905_ALL.Interactions'
         # get_user_metrics(filename)
         
-        
+        '''
         print 'Successful power users according one criteria are', ', '.join(get_successfull_power_users(filename, with_FA_considered=True, num_users=40))
         power_best_worst_ter_users = get_best_and_worst_ter_users(
             filename, num_users=20)
@@ -781,7 +787,8 @@ elif DATA_SOURCE is 'csv':
             *get_metrics_change_with_thresholds(filename))
 
         print_oog_word_count(*get_OOV_words(filename))
-        
+        '''
+        get_times(filename)
         
 
 if __name__ == '__main__':
