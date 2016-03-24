@@ -1,0 +1,546 @@
+Could not import numpy. Need numpy for some methods. Perhaps some other import error happend
+The data source has been set to csv
+
+Successful power users according one criteria are dennis_goss, elizabeth_buenaventura, emilee_petkus, kenia_bradley, nicole_wilson, tech_support
+Sucessfull power users according to another criteria (TER) are wendy_novack, octivia_morrison, dawn_anderson, dennis_goss, mollie_phillips
+Struggling power users according to (TER) are patty_micks, martha_peters, ann_martinez, summer_jackson, dawn_anderson
+
+
+All tags percentage           : 16.7186282151
+Clip Click percentage         : 6.70303975058
+Noise percentage              : 3.35151987529
+Background Speech percentage  : 6.74201091193
+
+G1 count                      : 1604
+G2 count                      : 962
+G1 mean confidence            : 745.948877805
+G2 mean confidence            : 96.4688149688
+
+Commands              Mean Confidence    Number of Instances
+-------------------  -----------------  ---------------------
+GroupMessage&comma          46                    1
+manager assistance          904                   1
+lossprevention             909.5                  2
+PlayMessages               980.5                  4
+Whereis&comma               870                   5
+Message&comma             696.567                30
+copy that                 617.685                108
+register backup           560.255                110
+Logon&comma               687.909                242
+~No interpretations       88.6683                410
+Hello&comma               560.315               1653
+
+
+In grammar percentage         : 84.0218238504
+Out of grammar percentage     : 15.9781761496
+
+USER                     Correct accept rate    Correct reject rate    False accept rate    False reject rate    Total error rate    Mean conf    Number of instances
+----------------------  ---------------------  ---------------------  -------------------  -------------------  ------------------  -----------  ---------------------
+patrick_fitzgerald               100                     0                     0                    0                   0              909.5               2
+ryan_prent                     72.7273                27.2727                  0                    0                   0               606               11
+jesse_tallent                  66.6667                28.2051               5.12821                 0                5.12821          565.564             39
+dennis_goss                    81.4159                13.2743               2.65487              2.65487             5.30973          604.088             113
+kenia_bradley                    80                   13.3333                  0                 6.66667             6.66667          635.133             15
+nicole_wilson                  81.8182                9.09091                  0                 9.09091             9.09091          688.727             11
+brianna_campion                  70                     20                    10                    0                   10             484.3              10
+elida_capps                      60                     30                  6.66667              3.33333                10            477.033             30
+bdcdd_bdcdd                      90                      0                    10                    0                   10             805.1              10
+elizabeth_buenaventura         73.6842                15.7895                  0                 10.5263             10.5263          593.316             19
+jacque_salcido                 78.9474                10.5263               8.77193              1.75439             10.5263            557               57
+diane_wright                   72.2222                16.6667               11.1111                 0                11.1111          647.583             36
+wendy_novack                   68.4783                20.1087               4.8913               6.52174              11.413          575.304             184
+tech_support                   80.7692                7.69231                  0                 11.5385             11.5385          577.808             26
+mollie_phillips                78.2609                10.1449               7.24638              4.34783             11.5942          593.101             69
+octivia_morrison               71.6216                15.5405               2.02703              10.8108             12.8378          494.966             148
+marissa_truitt                 76.1194                10.4478               10.4478              2.98507             13.4328          632.448             67
+jasmine_wolf                   65.7143                  20                  5.71429              8.57143             14.2857          478.914             35
+dawn_anderson                  73.913                 11.3043               5.21739              9.56522             14.7826          465.365             115
+emilee_petkus                  73.6842                10.5263               2.63158              13.1579             15.7895          480.579             38
+cody_calhoun                   56.7308                26.9231               5.76923              10.5769             16.3462          445.356             104
+may_kirkpatrick                73.5849                9.43396               5.66038              11.3208             16.9811          535.962             53
+summer_jackson                 58.5526                24.3421               2.63158              14.4737             17.1053          382.645             152
+shannon_roper                  75.8621                6.89655               6.89655              10.3448             17.2414          645.793             29
+martha_peters                  55.7471                26.4368               10.3448              7.47126             17.8161          447.431             174
+deb_ashton                     72.549                 8.82353               11.7647              6.86275             18.6275          601.824             102
+ann_martinez                   57.8035                22.5434               3.46821              16.185              19.6532          489.786             173
+brittney_ortega                69.8413                7.93651               3.1746               19.0476             22.2222          454.143             63
+brad_proctor                   53.8462                23.0769                  0                 23.0769             23.0769          279.308             13
+patty_micks                    59.1133                17.2414               5.41872              18.2266             23.6453          364.389             203
+amanda_cervantez               67.2414                8.62069               8.62069              15.5172             24.1379          555.259             58
+julie_kavanagh                  62.5                   12.5                    0                   25                   25            456.125              8
+su_johnson                     44.2623                21.3115               4.91803              29.5082             34.4262            253               61
+paige_halverson                32.3529                29.4118               5.88235              32.3529             38.2353          231.603             68
+sophia_fortin                  57.1429                   0                     0                 42.8571             42.8571          282.143              7
+savanna_andrews                  50                      0                    50                    0                   50            397.25               4
+
+Weekday    Date        Correct accept rate    False accept rate    Correct reject rate    False reject rate    Total error rate
+---------  ---------  ---------------------  -------------------  ---------------------  -------------------  ------------------
+Saturday   2-20-2016         66.4032               5.92885               21.3439               6.32411              12.253
+Sunday     2-21-2016         67.7419               3.22581               22.5806               6.45161             9.67742
+Monday     2-22-2016         66.9565               4.92754               16.8116               11.3043             16.2319
+Tuesday    2-23-2016           70                  7.36842               15.2632               7.36842             14.7368
+Wednesday  2-24-2016         58.8816               4.93421               19.7368               16.4474             21.3816
+Thursday   2-25-2016         72.7273               5.92885               12.6482               8.69565             14.6245
+Friday     2-26-2016         62.7119               7.79661               16.6102               12.8814              20.678
+Saturday   2-27-2016         67.4603               7.53968               13.8889               11.1111             18.6508
+Sunday     2-28-2016         72.8972               4.20561               11.215                11.6822             15.8879
+Monday     2-29-2016         72.9927               4.0146                12.4088               10.5839             14.5985
+
+
+Weekday    Date        In gram Correct accept rate    In gram False accept rate    In gram Correct reject rate    In gram False reject rate    Total error rate
+---------  ---------  -----------------------------  ---------------------------  -----------------------------  ---------------------------  ------------------
+Saturday   2-20-2016             85.2792                       1.52284                       5.58376                       7.61421                 9.13706
+Sunday     2-21-2016             84.5638                      0.671141                       6.71141                       8.05369                 8.72483
+Monday     2-22-2016             79.6552                       2.06897                       4.82759                       13.4483                 15.5172
+Tuesday    2-23-2016             82.0988                       5.55556                       3.7037                        8.64198                 14.1975
+Wednesday  2-24-2016             72.7642                       1.21951                       6.09756                       19.9187                 21.1382
+Thursday   2-25-2016             82.1429                       2.67857                       5.35714                       9.82143                   12.5
+Friday     2-26-2016             77.0833                        3.75                         4.16667                         15                     18.75
+Saturday   2-27-2016             79.8122                      0.938967                       6.10329                       13.1455                 14.0845
+Sunday     2-28-2016             82.1053                       1.57895                       3.15789                       13.1579                 14.7368
+Monday     2-29-2016             81.6327                       3.26531                       4.08163                       11.0204                 14.2857
+
+ Threshold    Correct accept rate    False accept rate    Correct reject rate    False reject rate    Total error rate
+-----------  ---------------------  -------------------  ---------------------  -------------------  ------------------
+     0              78.1372               21.8628                  0                     0                21.8628
+    20              75.2923               12.0811               9.78176               2.84489              14.926
+    40              72.5253               9.43102               12.4318               5.61185             15.0429
+    60              70.304                7.71629               14.1465               7.8332              15.5495
+    80              68.5892               6.50818               15.3546               9.54793             16.0561
+    100             67.4981               5.61185               16.251                10.6391              16.251
+    120             66.3289               4.8714                16.9914               11.8083             16.6797
+    140             65.4716               4.44271               17.4201               12.6656             17.1083
+    160             64.5362               4.13094               17.7319               13.6009             17.7319
+    180             63.8348               3.70226               18.1606               14.3024             18.0047
+    200             63.2892               3.39049               18.4723               14.848              18.2385
+    220             62.8605               3.11769               18.7451               15.2767             18.3944
+    240             62.5877               3.00078               18.862                15.5495             18.5503
+    260             62.2759               2.84489               19.0179               15.8613             18.7062
+    280             62.2369               2.72798               19.1348               15.9002             18.6282
+    300             62.0421               2.65004               19.2128               16.0951             18.7451
+    320             61.0678               2.37724               19.4856               17.0694             19.4466
+    340             60.1325               2.22136               19.6415               18.0047              20.226
+    360             58.9634               1.94856               19.9143               19.1738             21.1224
+    380             57.9891               1.90959               19.9532               20.1481             22.0577
+    400             56.8589               1.79267               20.0701               21.2783             23.0709
+    420             56.0405               1.79267               20.0701               22.0966             23.8893
+    440             55.0273               1.59782               20.265                23.1099             24.7077
+    460             54.014                1.4809                20.3819               24.1231             25.6041
+    480             53.1177               1.28605               20.5768               25.0195             26.3055
+
+ Threshold    In grammar correct accept rate    In grammar false accept rate    In grammar correct reject rate    In grammar false reject rate    Total error rate
+-----------  --------------------------------  ------------------------------  --------------------------------  ------------------------------  ------------------
+     0                    92.718                           7.282                              0                                0                       7.282
+    20                   89.6104                          5.28757                          1.99443                          3.10761                   8.39518
+    40                   86.3173                          4.03525                          3.24675                          6.40074                    10.436
+    60                   83.6735                          3.29314                          3.98887                          9.04453                   12.3377
+    80                   81.6327                          2.69017                          4.59184                          11.0853                   13.7755
+    100                   80.334                          2.31911                          4.96289                           12.384                   14.7032
+    120                  78.9425                          2.13358                          5.14842                          13.7755                   15.9091
+    140                  77.9221                          1.90167                          5.38033                          14.7959                   16.6976
+    160                  76.8089                          1.80891                           5.4731                          15.9091                    17.718
+    180                   75.974                          1.57699                          5.70501                           16.744                    18.321
+    200                  75.3247                          1.43785                          5.84416                          17.3933                   18.8312
+    220                  74.8145                           1.2987                           5.9833                          17.9035                   19.2022
+    240                  74.4898                           1.2987                           5.9833                          18.2282                   19.5269
+    260                  74.1187                          1.20594                          6.07607                          18.5993                   19.8052
+    280                  74.0724                          1.11317                          6.16883                          18.6456                   19.7588
+    300                  73.8404                          1.06679                          6.21521                          18.8776                   19.9443
+    320                  72.6809                          1.02041                           6.2616                          20.0371                   21.0575
+    340                  71.5677                          0.974026                         6.30798                          21.1503                   22.1243
+    360                  70.1763                          0.974026                         6.30798                          22.5417                   23.5158
+    380                  69.0167                          0.927644                         6.35436                          23.7013                   24.6289
+    400                  67.6716                          0.927644                         6.35436                          25.0464                    25.974
+    420                  66.6976                          0.927644                         6.35436                          26.0204                   26.9481
+    440                  65.4917                          0.834879                         6.44712                          27.2263                   28.0612
+    460                  64.2857                          0.742115                         6.53989                          28.4323                   29.1744
+    480                  63.2189                          0.649351                         6.63265                          29.4991                   30.1484
+
+ Threshold    Out of grammar false accept rate    Out of grammar correct reject rate    Out of grammar false reject rate    Total error rate
+-----------  ----------------------------------  ------------------------------------  ----------------------------------  ------------------
+     0                    98.5366                                 0                                    0                        98.5366
+    20                    47.8049                              50.7317                              1.46341                     49.2683
+    40                    37.8049                              60.7317                              1.46341                     39.2683
+    60                    30.9756                               67.561                              1.46341                      32.439
+    80                    26.5854                              71.9512                              1.46341                     28.0488
+    100                   22.9268                              75.6098                              1.46341                     24.3902
+    120                   19.2683                              79.2683                              1.46341                     20.7317
+    140                   17.8049                              80.7317                              1.46341                     19.2683
+    160                   16.3415                              82.1951                              1.46341                     17.8049
+    180                    14.878                              83.6585                              1.46341                     16.3415
+    200                   13.6585                               84.878                              1.46341                      15.122
+    220                   12.6829                              85.8537                              1.46341                     14.1463
+    240                   11.9512                              86.5854                              1.46341                     13.4146
+    260                   11.4634                              87.0732                              1.46341                     12.9268
+    280                   11.2195                              87.3171                              1.46341                     12.6829
+    300                   10.9756                               87.561                              1.46341                      12.439
+    320                    9.5122                              89.0244                              1.46341                     10.9756
+    340                   8.78049                              89.7561                              1.46341                     10.2439
+    360                   7.07317                              91.4634                              1.46341                     8.53659
+    380                   7.07317                              91.4634                              1.46341                     8.53659
+    400                   6.34146                              92.1951                              1.46341                     7.80488
+    420                   6.34146                              92.1951                              1.46341                     7.80488
+    440                   5.60976                              92.9268                              1.46341                     7.07317
+    460                   5.36585                              93.1707                              1.46341                     6.82927
+    480                   4.63415                              93.9024                              1.46341                     6.09756
+
+
+OOG word      Count
+-----------  -------
+HELLO          59
+YOU            55
+I              42
+THE            34
+IT             28
+CODY           25
+CUSTOMER       23
+TO             22
+ARE            22
+ON             22
+THAT           21
+A              21
+HEY            20
+IN             20
+OKAY           18
+CAN            17
+THANK          15
+BACKUP         15
+YEAH           14
+WHAT           13
+IS             13
+THERE          12
+UM             11
+DO             11
+WENDY          10
+DENNIS         10
+GET            10
+EXPERIENCE      9
+FOR             9
+ONE             9
+MESSAGE         9
+HAVE            9
+CLOCK           9
+WE              8
+ME              8
+PLEASE          8
+OF              8
+JESSE           8
+GOT             8
+WAS             7
+I'M             7
+THEY            7
+SU              7
+ANN             7
+DID             7
+BE              7
+UP              7
+SERVICE         7
+NOT             6
+AM              6
+REQUEST         6
+THOSE           6
+BACK            6
+REGISTER        6
+TWO             6
+ONES            5
+SAID            5
+NOW             5
+THEM            5
+WERE            5
+LOG             5
+HEAR            5
+AMANDA          5
+SOME            5
+JUST            5
+SHE             5
+YES             5
+UH              5
+MANAGERS        5
+FEATHERS        5
+NEED            5
+RYAN            5
+ASSISTANCE      5
+THANKS          4
+WANT            4
+MARTHA          4
+KNOW            4
+WAY             4
+CALHOUN         4
+ANSWER          4
+T               4
+WELCOME         4
+KIND            4
+IT'S            4
+OCTIVIA         4
+NO              4
+AT              4
+I'LL            4
+COPY            4
+THINK           4
+RIGHT           4
+ALRIGHT         3
+OFF             3
+FIT             3
+FLOOR           3
+WILL            3
+BUT             3
+UNTIL           3
+DON'T           3
+WHY             3
+PATTY           3
+COME            3
+COULD           3
+WOULD           3
+CANCEL          3
+IF              3
+SUMMER          3
+LINE            3
+WITH            3
+BY              3
+THAT'S          3
+SAY             3
+READY           3
+MANAGER         3
+COMING          3
+NUMBERS         3
+LOOKING         3
+MARTINEZ        3
+HERE            3
+FRAME           2
+SIGN            2
+GO              2
+WHERE           2
+GETTING         2
+WON'T           2
+WOLF            2
+KENIA           2
+SNAPS           2
+JULIE           2
+MY              2
+ANY             2
+WHATEVER        2
+MARTH           2
+HURD            2
+WHO             2
+AND             2
+ALL             2
+LIKE            2
+DOLLARS         2
+CATTLE          2
+YOUR            2
+SOMEBODY        2
+ELIDA           2
+FOUND           2
+SALES           2
+CALL            2
+BOX             2
+WELL            2
+OVER            2
+ANTWONE         2
+GIVE            2
+CAN'T           2
+SOPHIA          2
+WHICH           2
+GUYS            2
+BECAUSE         2
+THIS            2
+OR              2
+ABOUT           2
+FOUR            2
+NEEDED          2
+PHONE           2
+SOMETHING       2
+REPEAT          2
+YOU'RE          2
+MARISSA         2
+SURE            2
+HOLD            2
+TEN             2
+SEE             2
+SEEING          2
+BACKSTOCK       2
+THIRTY          2
+GOING           2
+LET             2
+WALL            2
+NINETY          2
+POO             2
+DOLLAR          2
+THING           2
+OKIE            2
+HYSTERICAL      2
+EVERYONE        1
+YUP             1
+SORRY           1
+BRINGING        1
+HEADING         1
+KIDS            1
+LAST            1
+TILL            1
+ASISTANCE       1
+NEXT            1
+ABOU            1
+PICK            1
+NINE            1
+FRAMS           1
+WEEK            1
+FRAM            1
+HAD             1
+WEN             1
+P               1
+STOPPED         1
+MINUTE          1
+LOOK            1
+MAY             1
+GILDEN          1
+YET             1
+HELP            1
+LIGHT           1
+ANYBODY         1
+LEAVE           1
+MARKER          1
+HELL            1
+NICOLE          1
+AROUND          1
+TALKING         1
+PA              1
+QUE             1
+WOULDN'T        1
+STANDING        1
+FOWERS          1
+FINISH          1
+DOOR            1
+TELL            1
+NINECENT        1
+REAL            1
+DOK             1
+FLORA           1
+GENTLEMAN       1
+HAIR            1
+MOMENT          1
+RED             1
+REMEMBER        1
+KIRKPATRICK     1
+FRAMNG          1
+BETTER          1
+LUNCH           1
+NEEDS           1
+WHO'S           1
+HER             1
+FRONT           1
+SECOND          1
+STRIPE          1
+EVEN            1
+MOLLIE          1
+DOKIE           1
+EMILEE          1
+SO              1
+SUPPOSED        1
+PUT             1
+MORE            1
+CUTOMER         1
+SCAN            1
+MOLLY           1
+CAP             1
+SINGLE          1
+TRYING          1
+CHAIRS          1
+AWAY            1
+FRAMING         1
+SIXTY           1
+DOCY            1
+BASKET          1
+ASSOCIATE       1
+SIGNS           1
+PINS            1
+FLOWERS         1
+THEN            1
+THREE           1
+TRUN            1
+CUSTOMERS       1
+NICHOLE         1
+CLOSEST         1
+BOTTOM          1
+LONG            1
+CUSTOM          1
+TURN            1
+WAITING         1
+TAKEN           1
+RECEIVING       1
+PURCHASE        1
+COPIES          1
+REGULAR         1
+OURS            1
+INDIGO          1
+SUPPORT         1
+HI              1
+DONE            1
+APPAREL         1
+FINE            1
+HE              1
+AFRAID          1
+DOES            1
+EIGHT           1
+TECHNICALLY     1
+END             1
+M               1
+MISS            1
+SIZE            1
+I'L             1
+AMAMDA          1
+WOODEN          1
+GROSS           1
+TIME            1
+HOPE            1
+SUE             1
+WANTING         1
+TAKING          1
+CLEARANCE       1
+MIGHT           1
+WHITE           1
+GRAY            1
+PAINT           1
+WORD            1
+ELIZABETH       1
+EPERIENCE       1
+ASKED           1
+SUYAPA          1
+CRAFT           1
+TECH            1
+CLICK           1
+JOHNSON         1
+MINE            1
+CART            1
+FEW             1
+SQUEEKER        1
+DAWN            1
+PIECE           1
+TWENTY          1
+I'VE            1
+BREAK           1
+KEY             1
+MAZE            1
+SKINNY          1
+SPICE           1
+USE             1
+REPORT          1
+KEYS            1
+COP             1
+QUICK           1
+PAIGE           1
+SEPARATED       1
+PRENT           1
+BIG             1
+WHEN            1
+DAY             1
+TOLD            1
+VERY            1
+GOD             1
+YOU'LL          1
+STORE           1
+FROM            1
+BRING           1
+TAKE            1
+NICE            1
+
+{'': 102, 'YEAH THEY ARE A DOLLAR NINETY NINE WHAT THEY ARE SEEING': 1, 'UM HELLO ELIDA': 1, 'YUP': 1, 'CAN I GET BACKUP AT THE REGISTER PLEASE': 1, ' LET ME LOOK SHE WAS SUPPOSED TO GIVE ME': 1, 'UM WE HAVE THOSE PINS ON THE END CAP': 1, ' WHAT WERE THE TWO NUMBERS YOU SAID WOULD NOT FIT': 1, 'OKAY YOU GUYS': 1, "I'M COMING": 1, ' ': 7, 'OKAY HELLO MANAGERS': 1, 'HELLO ': 1, ' WENDY': 1, ' COPY THAT HELLO PATTY': 1, 'YES SU': 1, 'SURE ON MY WAY': 1, 'HELLO MAZE': 1, 'OKAY WHAT SIZE': 1, "HEY PAIGE WHAT WERE THOSE TWO NUMBERS YOU SAID WON'T FIT": 1, 'THOSE ARE JUST THE SINGLE': 1, 'THANK YOU': 8, 'THE CUSTOMER IS HEADING THAT WAY JESSE': 1, 'CUSTOMER ASSISTANCE': 1, ' YOUR WELCOME': 1, 'YEAH I CAN': 1, ' NO I THINK OURS ARE REGULAR ONES NOT SKINNY ONES': 1, 'MARTHA': 1, 'OCTIVIA THE SIXTY NINECENT CRAFT PAINT IS ON SALES': 1, 'MOLLY HURD THEM LIKE CATTLE': 1, 'OKAY HELLO CUSTOMER EXPERIENCE': 1, 'ANN MARTINEZ': 1, 'TILL IT SNAPS YOU WILL HEAR IT': 1, 'MESSAGE TO SU': 1, 'JESSE CAN I GET THE KEYS FROM YOU WENDY IS AT LUNCH': 1, 'CODY': 4, 'UM WHY DO YOU NEED TO DO THE TEN DOLLARS OFF': 1, ' MANAGERS': 3, 'UH HELLO AMANDA': 1, 'I HAVE A CUSTOMER': 1, 'PA': 1, 'YEAH WHAT DO YOU NEED ON THE': 1, 'CODY I GOT IT': 1, 'WELL SHE TOLD ME SHE NEEDED HELP IN FLORA': 1, 'YEAH HELLO CUSTOMER EXPERIENCE': 1, 'HEY DOCY': 1, 'CAN YOU REPEAT THAT PLEASE': 1, 'WENDY DID YOU CALL ME': 1, 'HELLO ANTWONE': 1, 'CAN YOU DO BACKUP': 1, 'JULIE': 1, 'YES WHAT AM I LOOKING FOR': 1, "OKIE DOKIE HOPE SHE WON'T BRING IT BACK": 1, 'THE FLOWERS YOU GOT WERE JUST THE': 1, ' IT WAS A TWENTY FOUR BY THIRTY TWO': 1, 'HELLO REGISTER BACKUP': 1, 'THANK YOU AMANDA': 1, 'CANCEL THAT': 1, 'HELLO CUSTOMER ASSISTANCE': 1, 'HEY SU HELLO SU': 1, 'MESSAGE I T': 3, 'HEY WOLF ARE YOU IN': 1, 'BACKSTOCK IT UNTIL NEXT WEEK WHEN WE DO IT': 1, 'ARE THEY THE BIG ONES THAT GO ON THE RED STRIPE AROUND THE STORE': 1, ' BACKUP': 1, 'HELLO KENIA': 1, 'NOT YET': 1, 'HELLO WENDY ANY WORD ABOU SU': 1, 'RYAN HELLO RYAN': 1, 'HEY COULD I GET SOMEBODY TO ANSWER LINE TWO': 1, "I'M ON REGISTER": 1, ' HELLO MANAGER': 1, ' HELLO CUSTOMER EPERIENCE': 1, 'HEY MARTH HELLO MARTHA': 1, ' OKAY OKAY': 1, "WHAT WERE THOSE TWO NUMBERS YOU SAID WOULDN'T FIT": 1, 'YES HELLO NICOLE': 1, "I'M UP HERE NOW": 1, " UNTIL IT SNAPS THEN YOU'LL HEAR IT": 1, 'LOG ON ': 2, 'SUMMER WHICH ONE WHICH OF THE FEATHERS ARE YOU TALKING ABOUT': 1, 'MESSAGE CODY': 1, ' HELLO': 1, 'OKAY THANKS': 1, 'UM I AM GETTING A REPORT IN WITH ANN THAT WE HAVE TO DO': 1, "UM I'M BRINGING SOME CHAIRS UP AND YEAH I WILL": 1, 'MESSAGE TO SUYAPA': 1, 'I KNOW THAT NICHOLE WAS WAITING FOR SOME KIND OF': 1, ' HELLO AMAMDA': 1, "WHO'S": 1, 'CAN YOU KIND OF SCAN A FEW OF THOSE': 1, 'DID YOU UM ': 1, 'OKIE DOK': 1, 'CUSTOMER EXPERIENCE': 5, 'WHAT I CAN ANSWER LINE ONE': 1, "I DON'T KNOW ABOUT THAT I WANT TO SAY NO BUT": 1, 'I THINK THE SIGN I THINK THE ONE THEY ARE LOOKING FOR': 1, 'MARTH THERE MIGHT BE A CART BACK THERE': 1, "OKAY THANKS I'LL TELL HER": 1, 'HEY SUMMER WHAT KIND OF FEATHERS ARE ON IT': 1, "YOU'RE WELCOME I AM GOING TO LEAVE THEM BY THE RECEIVING DOOR": 1, '  THANK YOU': 1, 'HEY CODY CAN YOU COME UP FRONT PLEASE': 1, 'I HAVE A INDIGO SPICE FRAME': 1, 'HEY MARISSA IF YOU WANT TO FINISH UP WHATEVER': 1, 'POO POO': 1, 'HELLO I T': 1, 'NO MINE IS ONE': 1, 'CODY CALHOUN': 1, 'TECH SUPPORT': 1, 'CANCEL': 1, 'THERE ARE SOME CLEARANCE ONES OVER THERE THAT': 1, 'LET ME SEE WHAT YOU GOT': 1, "OCTIVIA IT'S THE ONES THAT ARE GILDEN": 1, 'THANK GOD': 1, "I DID I CAN'T RIGHT NOW": 1, 'CODY HELLO HELLO CODY': 1, 'BACKSTOCK FOR NOW BUT REMEMBER WHERE YOU PUT IT': 1, " WE DON'T TECHNICALLY HAVE IT": 1, "I CAN HEAR YOU JESSE BUT I CAN'T RIGHT NOW": 1, 'LOG ON ANTWONE': 1, 'OKAY HELLO EMILEE': 1, 'UH YES I AM DONE WITH THIS GENTLEMAN': 1, 'MARISSA THE CUSTOMER SAID THAT THOSE ARE THE LAST TWO FOWERS': 1, 'MISS WOLF COULD YOU TRUN THE LIGHT': 1, 'YES UNTIL YOU HEAR IT CLICK': 1, 'YEAH THIS I KNOW': 1, 'YEAH I GOT A SQUEEKER': 1, 'RYAN GIVE IT TO JULIE': 1, "I DON'T KNOW MARTHA": 1, ' GETTING READY HELLO MANAGERS': 1, ' GRAY HAIR ONE MORE ALL THE WAY UP': 1, 'COP COPY THAT': 1, 'HEY CODY': 1, 'ALRIGHT EVERYONE': 1, ' BACKUP REQUEST': 1, 'I WOULD ANSWER IT AND SEE WHO THEY ARE LOOKING FOR': 1, 'WHAT KIND OF FEATHERS ARE THEY': 1, 'MANAGER ASSISTANCE ON FLOOR PLEASE': 1, 'YEAH': 1, 'I FOUND IT IN THE GROSS BY FRAME': 1, 'THANKS JESSE': 1, 'UH HELLO WENDY': 1, 'UH HELLO ANN': 1, 'HELLO WEN': 1, "I'L GET IT": 1, 'CLOCK IN DENNIS': 9, 'HEY MARTHA ARE YOU ON THE WAY OR DID YOU GET STOPPED': 1, 'REGISTER BACKUP PLEASE': 1, 'HEY AMANDA': 1, 'BACKUP NEEDED': 1, 'UM HEY UM HELLO PATTY': 1, 'DID ANYBODY TAKE A BASKET THAT HAD SOME COPIES IN IT THAT WAS BACK': 1, 'SURE': 1, "JESSE I'M TAKING THE FLOOR": 1, "YEAH I'LL BE THERE": 1, 'HELLO SALES ASSOCIATE': 1, 'CODY ARE PIECE IS SEPARATED IF YOU WANT TO': 1, 'YOUR WELCOME': 1, 'HI': 1, "I'VE GOT ONE HERE IN APPAREL": 1, 'GET IT WHERE IT NEEDS TO GO RIGHT AWAY BECAUSE': 1, 'HEY CODY CAN YOU COME TO ': 1, 'IS THERE A BETTER THING TO USE FOR IT': 1, ' AMANDA': 1, 'WHO WHAT DOES SOMEBODY NEED SOMETHING': 1, 'HELLO PATTY WERE YOU TRYING TO CALL ME': 1, 'UM THERE IS A IN A WOODEN BOX': 1, 'YEAH CAN WE GET BACKUP REAL QUICK': 1, 'NEED SOME BACKUP': 1, 'YEAH WENDY ARE YOU THERE ARE YOU THERE': 1, 'CAN I HAVE A QUE ON A WHITE': 1, 'HEY JESSE': 1, 'YEAH THAT WAS WHAT I WAS AFRAID OF': 1, 'KENIA': 1, 'MANAGER ASSISTANCE ON REGISTER FOUR PLEASE': 1, 'I THINK WE ARE ALL WITH CUSTOMERS AT THE MOMENT': 1, 'ALRIGHT THANK YOU': 2, 'SIGN IN RYAN PRENT': 1, 'YOU NEED BACKUP IS THAT WHY YOU ASKED': 1, 'JESSE GOT IT': 1, 'CODY PLEASE CANCEL': 1, "IT'S A PICK OF FEATHERS IT'S GOT THREE FEATHERS ON IT": 1, ' FRAMNG HELLO FRAM': 1, 'MESSAGE TO CUSTOM FRAMING': 1, 'OKAY THANKS ANN': 1, "IT'S P M NINETY EIGHT IT IS BACK": 1, ' UH REPEAT THAT': 1, 'HELLO SU JOHNSON': 1, " I'LL HOLD THEM UP": 1, 'SOPHIA': 1, 'HELLO CUSTOMER ASSISTANCE ': 1, 'ANN DO YOU WANT TO ': 1, 'CUSTOMER ASISTANCE': 1, '    ': 1, 'AM HELLO AMANDA': 1, 'HEY MOLLIE': 1, 'MESSAGE ': 1, 'HEY CAN I GET ': 1, 'ELIZABETH': 1, 'HELLO CUSTOMER SERVICE': 6, ' BE RIGHT THERE': 1, 'HELL ': 1, 'HAVE A NICE DAY': 1, 'GET READY OR WHATEVER HELLO': 1, 'CAN YOU HEAR ME NOW': 1, 'CUSTOMER SERVICE PLEASE': 1, 'COULD I HELLO CUSTOMER EXPERIENCE': 1, 'MESSAGE TO WENDY': 1, 'BACKUP REQUEST': 5, 'ELIDA I WILL BE THERE IN JUST A MINUTE': 1, "I'M NOT EVEN SEEING ANY SIGNS OVER HERE": 1, 'OKAY THANK YOU': 1, 'HELLO WENDY CAN YOU ANSWER ON ONE': 1, 'DAWN': 1, ' RYAN': 1, 'HELLO': 1, 'UM THE CLOSEST THING WE HAVE TO THAT': 1, 'HURD THEM LIKE CATTLE': 1, 'GUYS IT IS BREAK TIME': 1, "NO THAT'S FINE HELLO ANN": 1, ' OCTIVIA ARE YOU READY HELLO OCTIVIA': 1, "YOU'RE WELCOME": 1, "I'LL BE THERE IN JUST A SECOND": 1, 'HEY SOPHIA': 1, 'CODY CALHOUN HELLO CODY CALHOUN': 1, 'DENNIS IS COMING': 1, "I'M AT REGISTER": 1, 'LOG OFF CODY CALHOUN': 1, 'DO NOT SORRY': 1, 'HOLD IT UP': 1, 'HEY CODY DID YOU SAY SOMETHING': 1, 'SHE SAID THEY FOUND THEM ON THE BOTTOM ON THE VERY BACK WALL': 1, ' SUMMER': 1, ' CAN YOU COME ON THE FLOOR': 1, 'SUE IT IS GOING TO BE JUST A KIDS MARKER BOX': 1, ' YEAH COPY THAT': 1, 'HELLO CODY': 6, 'HEY WENDY HELLO WENDY': 1, 'JESSE LINE ONE IF FOR YOU': 1, 'SU HE IS ON THE PHONE': 1, 'MAY KIRKPATRICK': 1, ' OKAY I HAVE TO DO A KEY TURN': 1, 'I GOT IT THANK YOU': 1, 'DID YOU SAY ONE BECAUSE THAT WAS TAKEN': 1, ' LOG IN ANN MARTINEZ': 1, 'WE DO NOT': 1, "THAT'S HYSTERICAL": 2, ' FOR STANDING ON THE PHONE FOR SO LONG': 1, 'COPY': 1, 'UM WHY ARE YOU WANTING TO DO TEN DOLLARS OFF A THIRTY DOLLAR PURCHASE': 1, 'YEAH THAT WOULD BE ME I AM COMING': 1, 'CAN I GET HELLO CODY': 1, 'OKAY': 5, ' HELLO MARTINEZ': 1, 'OKAY WELL MY FRAMS ARE ON THE BACK WALL': 1}

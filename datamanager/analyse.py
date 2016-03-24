@@ -5,6 +5,8 @@ import re
 import math
 from constants import DATA_DIR, DB_PATH, DATA_SOURCE
 from collections import Counter
+import calendar
+from datetime import date
 
 from tabulate import tabulate
 
@@ -163,7 +165,7 @@ elif DATA_SOURCE is 'csv':
         else:
             return False
 
-    def get_overall_metrics(filename, threshold=100):
+    def get_overall_metrics(filename, threshold=100, day=None):
         '''computes CA, CR, FR, FA overall and also for in-grammar and out-grammar.
         Returns dictionary of overall CA, CR, FR, FA, in grammar CA, CR, FR, FA
         and out of grammar CA, CR, FR, FA'''
@@ -175,6 +177,15 @@ elif DATA_SOURCE is 'csv':
              callsrepath, acoustic_model,
              date, time, milliseconds, grammarlevel, firstname, lastname, oration_id,
              chain, store) = process(row)
+             
+            # 
+            if day is not None: 
+                expr = ur'(2016|2017|2018|2019)([0-1][0-9])([0-3][0-9])'
+                p = re.compile(expr)
+                result = re.search(p, date)
+                Year, Month, Day = map(int, result.groups()[:3])
+                if Day is not day:
+                    continue
 
             ca, fa, cr, fr = (compute_ca(transcript_si, decode_si, conf, threshold),
                               compute_fa(transcript_si, decode_si,
@@ -276,7 +287,7 @@ elif DATA_SOURCE is 'csv':
                                 'Out of grammar false reject rate'],
                        tablefmt='simple', numalign="center") + '\n'
 
-    def get_user_metrics(filename, threshold=100):
+    def get_user_metrics(filename, threshold=100, day=None):
         '''returns metrics like FR, FA, CA, CR per user
         Input can be a .csv file or .interaction file.
         Assumes Lumenvox interactionfile csv (no headers and renamed to .csv) 
@@ -291,6 +302,8 @@ elif DATA_SOURCE is 'csv':
              callsrepath, acoustic_model,
              date, time, milliseconds, grammarlevel, firstname, lastname, oration_id,
              chain, store) = process(row)
+             
+             
 
             ca, fa, cr, fr = (compute_ca(transcript_si, decode_si, conf, threshold),
                               compute_fa(
@@ -675,7 +688,68 @@ elif DATA_SOURCE is 'csv':
         print '{:<30}'.format('In grammar percentage') + ": " + str(ing_percent)
         print '{:<30}'.format('Out of grammar percentage') + ": " + str(oog_percent)
         print
+        
+    def get_dates(filename):
+        expr = ur'(2016|2017|2018|2019)([0-1][0-9])([0-3][0-9])'
+        p = re.compile(expr)
+        dates_list = []
+        for row in get_reader(filename):
+            (transcript_si, transcript, decode_si, decode, conf,
+         decode_time, callsrepath, acoustic_model, date, time,
+         milliseconds, grammarlevel, firstname, lastname,
+         oration_id, chain, store) = process(row)
+               
+            result = re.search(p, date)
+            year, month, day = map(int, result.groups()[:3])
+            dates_list.append((year, month, day))
 
+        sorted_dates =  sorted(list(set(dates_list)), key=lambda x: 365*x[0] + 30*x[1] + x[2])
+        return sorted_dates
+
+    def get_metrics_per_day(filename):
+        sorted_dates = get_dates(filename)
+        date_overall_metrics = []
+        date_ingram_metrics = []
+        for year, month, day in sorted_dates:
+            info = get_overall_metrics(filename, threshold=100, day=day)
+            (ca_rate, fa_rate, cr_rate, fr_rate) = info['overall']
+            (ingram_ca_rate, ingram_fa_rate, ingram_cr_rate,
+            ingram_fr_rate) = info['ingram']
+            
+            
+            weekday = calendar.day_name[date(year, month, day).weekday()]
+            date_str = '%s-%s-%s' % (month, day, year)
+            date_overall_metrics.append((weekday, date_str, ca_rate, fa_rate, cr_rate, fr_rate, fa_rate + fr_rate))
+            
+            date_ingram_metrics.append((weekday, date_str, ingram_ca_rate, ingram_fa_rate, ingram_cr_rate,
+            ingram_fr_rate, ingram_fr_rate + ingram_fa_rate))
+         
+        return date_overall_metrics, date_ingram_metrics 
+
+    def print_metrics_per_day(date_overall_metrics, date_ingram_metrics):
+     
+        print tabulate(date_overall_metrics,
+                           headers=['Weekday', 'Date',
+                                    'Correct accept rate',
+                                    'False accept rate',
+                                    'Correct reject rate',
+                                    'False reject rate',
+                                    'Total error rate'],
+                           tablefmt='simple', numalign="center") + '\n'
+                           
+        print            
+        print tabulate(date_ingram_metrics,
+                           headers=['Weekday', 'Date',
+                                    'In gram Correct accept rate',
+                                    'In gram False accept rate',
+                                    'In gram Correct reject rate',
+                                    'In gram False reject rate',
+                                    'Total error rate'],
+                           tablefmt='simple', numalign="center") + '\n'
+    
+    
+    
+    
     def main():
         print 'The data source has been set to csv\n'
         #filename = 'MIC-LEW_20160220-0229_all.csv'
@@ -684,7 +758,8 @@ elif DATA_SOURCE is 'csv':
         filename = 'data/MIC-LEW_20160220-0229_all.Interactions'
         #filename = 'data/TCS-AUS_20150905_ALL.Interactions'
         # get_user_metrics(filename)
-
+        
+        
         print 'Successful power users according one criteria are', ', '.join(get_successfull_power_users(filename, with_FA_considered=True, num_users=40))
         power_best_worst_ter_users = get_best_and_worst_ter_users(
             filename, num_users=20)
@@ -701,11 +776,13 @@ elif DATA_SOURCE is 'csv':
 
         print_user_metrics(filename, sort_by_metric='ter')
 
+        print_metrics_per_day(*get_metrics_per_day(filename))
         print_metrics_change_with_thresholds(
             *get_metrics_change_with_thresholds(filename))
 
         print_oog_word_count(*get_OOV_words(filename))
-
+        
+        
 
 if __name__ == '__main__':
     main()
