@@ -632,10 +632,13 @@ elif DATA_SOURCE is 'csv':
         return commands_conf
 
     def print_commands_conf(command_confs):
-        command_mean_conf = [(command, sum(confs) / float(len(confs)), len(confs))
-                             for command, confs in command_confs.items()]
+        total = float(sum([len(confs) for command, confs in command_confs.items()]))
 
-        command_mean_conf = sorted(command_mean_conf, key=lambda x: x[2])
+        command_mean_conf = [(command, sum(confs) / float(len(confs)), 100 * len(confs)/total)
+                             for command, confs in command_confs.items()]
+                             
+
+        command_mean_conf = sorted(command_mean_conf, key=lambda x: x[2], reverse=True)
 
         print
         print tabulate(command_mean_conf, headers=['Commands', 'Mean Confidence', 'Number of Instances'],
