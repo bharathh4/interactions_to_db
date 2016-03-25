@@ -211,15 +211,16 @@ elif DATA_SOURCE is 'csv':
             cr_list.append((cr, gram_status))
             fr_list.append((fr, gram_status))
 
-        
         overall_count = float(len(ca_list))
-        
-        ca_rate = 100 * sum([val for val, gram_status in ca_list]) / overall_count
-        fa_rate = 100 * sum([val for val, gram_status in fa_list]) / overall_count
-        cr_rate = 100 * sum([val for val, gram_status in cr_list]) / overall_count
-        fr_rate = 100 * sum([val for val, gram_status in fr_list]) / overall_count
-            
-         
+
+        ca_rate = 100 * \
+            sum([val for val, gram_status in ca_list]) / overall_count
+        fa_rate = 100 * \
+            sum([val for val, gram_status in fa_list]) / overall_count
+        cr_rate = 100 * \
+            sum([val for val, gram_status in cr_list]) / overall_count
+        fr_rate = 100 * \
+            sum([val for val, gram_status in fr_list]) / overall_count
 
         ingram_ca_list = [val for val,
                           gram_status in ca_list if gram_status == 'ING']
@@ -229,7 +230,7 @@ elif DATA_SOURCE is 'csv':
                           gram_status in fr_list if gram_status == 'ING']
         ingram_cr_list = [val for val,
                           gram_status in cr_list if gram_status == 'ING']
-           
+
         ingram_count = float(len(ingram_ca_list))
 
         ingram_ca_rate = 100 * \
@@ -247,7 +248,7 @@ elif DATA_SOURCE is 'csv':
                            gram_status in cr_list if gram_status == 'OOG']
         outgram_fr_list = [val for val,
                            gram_status in fr_list if gram_status == 'OOG']
-             
+
         outgram_count = float(len(outgram_fa_list))
 
         outgram_fa_rate = 100 * \
@@ -720,9 +721,6 @@ elif DATA_SOURCE is 'csv':
                               key=lambda x: 365 * x[0] + 30 * x[1] + x[2])
         return sorted_dates
 
-
-        
-        
     def club_weekdays(func):
         def inner(filename):
             date_overall_metrics, date_ingram_metrics = func(filename)
@@ -730,9 +728,9 @@ elif DATA_SOURCE is 'csv':
             weekday_dict = {}
             for (weekday, date_str, ca_rate, fa_rate, cr_rate, fr_rate, ter, count) in date_overall_metrics:
                 weekday_dict.setdefault(weekday, [])
-                weekday_dict[weekday].append((date_str, ca_rate, fa_rate, cr_rate, fr_rate, ter, count))
+                weekday_dict[weekday].append(
+                    (date_str, ca_rate, fa_rate, cr_rate, fr_rate, ter, count))
 
-                        
             clubed_date_overall_metrics = []
             for weekday, vals in weekday_dict.items():
                 ca, fa, cr, fr, t, c = ([], [], [], [], [], [])
@@ -743,19 +741,26 @@ elif DATA_SOURCE is 'csv':
                     fr.append((fr_rate, count))
                     t.append((ter, count))
                     c.append(count)
-                ca = sum([rate*count for rate, count in ca])/sum([count for _, count in ca])
-                fa = sum([rate*count for rate, count in fa])/sum([count for _, count in fa])
-                cr = sum([rate*count for rate, count in cr])/sum([count for _, count in cr])
-                fr = sum([rate*count for rate, count in fr])/sum([count for _, count in fr])
-                t = sum([rate*count for rate, count in t])/sum([count for _, count in t])
+                ca = sum([rate * count for rate, count in ca]) / \
+                    sum([count for _, count in ca])
+                fa = sum([rate * count for rate, count in fa]) / \
+                    sum([count for _, count in fa])
+                cr = sum([rate * count for rate, count in cr]) / \
+                    sum([count for _, count in cr])
+                fr = sum([rate * count for rate, count in fr]) / \
+                    sum([count for _, count in fr])
+                t = sum([rate * count for rate, count in t]) / \
+                    sum([count for _, count in t])
                 c = sum(c)
-                
-                clubed_date_overall_metrics.append((weekday, '-', ca, fa, cr, fr, t, c))
-                
+
+                clubed_date_overall_metrics.append(
+                    (weekday, '-', ca, fa, cr, fr, t, c))
+
             weekday_dict = {}
             for (weekday, date_str, ca_rate, fa_rate, cr_rate, fr_rate, ter, count) in date_ingram_metrics:
                 weekday_dict.setdefault(weekday, [])
-                weekday_dict[weekday].append((date_str, ca_rate, fa_rate, cr_rate, fr_rate, ter, count))
+                weekday_dict[weekday].append(
+                    (date_str, ca_rate, fa_rate, cr_rate, fr_rate, ter, count))
             clubed_date_ingram_metrics = []
             for weekday, vals in weekday_dict.items():
                 ca, fa, cr, fr, t, c = ([], [], [], [], [], [])
@@ -766,21 +771,27 @@ elif DATA_SOURCE is 'csv':
                     fr.append((fr_rate, count))
                     t.append((ter, count))
                     c.append(count)
-                ca = sum([rate*count for rate, count in ca])/sum([count for _, count in ca])
-                fa = sum([rate*count for rate, count in fa])/sum([count for _, count in fa])
-                cr = sum([rate*count for rate, count in cr])/sum([count for _, count in cr])
-                fr = sum([rate*count for rate, count in fr])/sum([count for _, count in fr])
-                t = sum([rate*count for rate, count in t])/sum([count for _, count in t])
+                ca = sum([rate * count for rate, count in ca]) / \
+                    sum([count for _, count in ca])
+                fa = sum([rate * count for rate, count in fa]) / \
+                    sum([count for _, count in fa])
+                cr = sum([rate * count for rate, count in cr]) / \
+                    sum([count for _, count in cr])
+                fr = sum([rate * count for rate, count in fr]) / \
+                    sum([count for _, count in fr])
+                t = sum([rate * count for rate, count in t]) / \
+                    sum([count for _, count in t])
                 c = sum(c)
-                clubed_date_ingram_metrics.append((weekday, '-', ca, fa, cr, fr, t, c))
-                
-            week2dict = {'Monday': 1, 'Tuesday': 2, 'Wednesday': 3, 'Thursday': 4, 'Friday': 5, 'Saturday': 6, 'Sunday': 7}
-            return (sorted(clubed_date_overall_metrics, key=lambda x:week2dict[x[0]]), 
-            sorted(clubed_date_ingram_metrics, key=lambda x:week2dict[x[0]]))
+                clubed_date_ingram_metrics.append(
+                    (weekday, '-', ca, fa, cr, fr, t, c))
+
+            week2dict = {'Monday': 1, 'Tuesday': 2, 'Wednesday': 3,
+                         'Thursday': 4, 'Friday': 5, 'Saturday': 6, 'Sunday': 7}
+            return (sorted(clubed_date_overall_metrics, key=lambda x: week2dict[x[0]]),
+                    sorted(clubed_date_ingram_metrics, key=lambda x: week2dict[x[0]]))
 
         return inner
-            
-        
+
     def get_metrics_per_day(filename):
         sorted_dates = get_dates(filename)
         date_overall_metrics = []
@@ -790,7 +801,7 @@ elif DATA_SOURCE is 'csv':
             (ca_rate, fa_rate, cr_rate, fr_rate) = info['overall']
             (ingram_ca_rate, ingram_fa_rate, ingram_cr_rate,
              ingram_fr_rate) = info['ingram']
-             
+
             overall_count = info['overall_count']
             ingram_count = info['ingram_count']
 
@@ -863,7 +874,7 @@ elif DATA_SOURCE is 'csv':
         return hour_overall_metrics, hour_ingram_metrics
 
     def print_metrics_per_hour(hour_overall_metrics, hour_ingram_metrics):
-    
+
         print tabulate(hour_overall_metrics,
                        headers=['Hour',
                                 'Correct accept rate',
@@ -892,7 +903,11 @@ elif DATA_SOURCE is 'csv':
         #filename = 'data/TCS-AUS_20150905_ALL.Interactions'
         # get_user_metrics(filename)
 
-        
+        print '#' * 60 + '  Threshold of 100  ' + '#' * 60
+        print_overall_metrics(filename)
+        print '#' * 120 + '#' * len('  Threshold of 100  ')
+        print
+
         print 'Successful power users according one criteria are', ', '.join(get_successfull_power_users(filename, with_FA_considered=True, num_users=40))
         power_best_worst_ter_users = get_best_and_worst_ter_users(
             filename, num_users=20)
@@ -912,19 +927,17 @@ elif DATA_SOURCE is 'csv':
         print_metrics_per_day(*get_metrics_per_day(filename))
         new_get_metrics_per_day = club_weekdays(get_metrics_per_day)
         print_metrics_per_day(*new_get_metrics_per_day(filename))
-         # get_times(filename)
+        # get_times(filename)
         try:
             print_metrics_per_hour(*get_metrics_per_hour(filename))
         except:
             print 'Divide by zero error may have happend'
-        
+
         print_metrics_change_with_thresholds(
             *get_metrics_change_with_thresholds(filename))
 
         print_oog_word_count(*get_OOV_words(filename))
-        
-        
-       
+
 
 if __name__ == '__main__':
     main()

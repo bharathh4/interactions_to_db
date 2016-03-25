@@ -1,6 +1,27 @@
 Could not import numpy. Need numpy for some methods. Perhaps some other import error happend
 The data source has been set to csv
 
+############################################################  Threshold of 100  ############################################################
+ Correct accept rate    False accept rate    Correct reject rate    False reject rate
+---------------------  -------------------  ---------------------  -------------------
+       67.4981               5.61185               16.251                10.6391
+
+
+
+
+ In grammar correct accept rate    In grammar false accept rate    In grammar correct reject rate    In grammar false reject rate
+--------------------------------  ------------------------------  --------------------------------  ------------------------------
+             80.334                          2.31911                          4.96289                           12.384
+
+
+
+
+ Out of grammar false accept rate    Out of grammar correct reject rate    Out of grammar false reject rate
+----------------------------------  ------------------------------------  ----------------------------------
+             22.9268                              75.6098                              1.46341
+
+############################################################################################################################################
+
 Successful power users according one criteria are dennis_goss, elizabeth_buenaventura, emilee_petkus, kenia_bradley, nicole_wilson, tech_support
 Sucessfull power users according to another criteria (TER) are wendy_novack, octivia_morrison, dawn_anderson, dennis_goss, mollie_phillips
 Struggling power users according to (TER) are patty_micks, martha_peters, ann_martinez, summer_jackson, dawn_anderson
