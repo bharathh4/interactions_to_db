@@ -37,19 +37,19 @@ G2 count                      : 962
 G1 mean confidence            : 745.948877805
 G2 mean confidence            : 96.4688149688
 
-Commands              Mean Confidence    Number of Instances
--------------------  -----------------  ---------------------
-GroupMessage&comma          46                    1
-manager assistance          904                   1
-lossprevention             909.5                  2
-PlayMessages               980.5                  4
-Whereis&comma               870                   5
-Message&comma             696.567                30
-copy that                 617.685                108
-register backup           560.255                110
-Logon&comma               687.909                242
-~No interpretations       88.6683                410
-Hello&comma               560.315               1653
+Commands              Mean Confidence    Percentage
+-------------------  -----------------  ------------
+Hello&comma               560.315         64.4193
+~No interpretations       88.6683         15.9782
+Logon&comma               687.909         9.43102
+register backup           560.255         4.28683
+copy that                 617.685         4.20889
+Message&comma             696.567         1.16913
+Whereis&comma               870           0.194856
+PlayMessages               980.5          0.155885
+lossprevention             909.5         0.0779423
+GroupMessage&comma          46           0.0389712
+manager assistance          904          0.0389712
 
 
 In grammar percentage         : 84.0218238504

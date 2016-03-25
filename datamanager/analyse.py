@@ -641,7 +641,7 @@ elif DATA_SOURCE is 'csv':
         command_mean_conf = sorted(command_mean_conf, key=lambda x: x[2], reverse=True)
 
         print
-        print tabulate(command_mean_conf, headers=['Commands', 'Mean Confidence', 'Number of Instances'],
+        print tabulate(command_mean_conf, headers=['Commands', 'Mean Confidence', 'Percentage'],
                        tablefmt='simple', numalign="center") + '\n'
 
     def clean_up_phrase(phrase):
