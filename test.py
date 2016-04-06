@@ -81,6 +81,17 @@ if __name__ == '__main__':
     #demo_fetching_from_database_using_orm()
     #demo_interactions_composer_using_orm()
     
+    
+    
+    '''
+    db_path = 'C:\Users\TheatroIT\Documents\Scripts2\interactions_to_db\output_peewee_integration.sqlite'
+    Transcriptions = orm_helper.Transcriptions
+    #rows = [row.exactinteractionfilerow for row in Transcriptions.select().where(Transcriptions.chain == 'TheContainerStore')]
+    rows = [row.exactinteractionfilerow for row in Transcriptions.select()]
+
+    interactionsfile_header = interactions_composer.get_interactionfile_header()
+    interactions_composer.create_interactionsfile(interactionsfile_header, rows)
+    '''
     analyse.main()
     
 

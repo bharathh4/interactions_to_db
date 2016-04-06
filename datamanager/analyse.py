@@ -117,7 +117,12 @@ elif DATA_SOURCE is 'csv':
          ) = row
 
         (date, time, milliseconds, grammarlevel, fullname, oration_id,
-         chain, store) = callsrepath.split('\\')[-1].split('_')
+        chain, store) = callsrepath.split('\\')[-1].split('_')
+
+        #print callsrepath.split('\\')[-1].split('_')
+         # Home depot hack in place --- please remove
+        #(date, time, milliseconds, grammarlevel, fullname, oration_id,
+         #chain, _, store) = callsrepath.split('\\')[-1].split('_')
 
         try:
             firstname, lastname = fullname.split(' ')
@@ -165,7 +170,7 @@ elif DATA_SOURCE is 'csv':
         else:
             return False
 
-    def get_overall_metrics(filename, threshold=100, day=None, hour=None):
+    def get_overall_metrics(filename, threshold=100, day=None, hour=None, fname=None, lname=None):
         '''computes CA, CR, FR, FA overall and also for in-grammar and out-grammar.
         Returns dictionary of overall CA, CR, FR, FA, in grammar CA, CR, FR, FA
         and out of grammar CA, CR, FR, FA'''
@@ -193,6 +198,11 @@ elif DATA_SOURCE is 'csv':
                 Hour, Minute, Second = map(int, result.groups()[:3])
                 if Hour is not hour:
                     continue
+                    
+            if fname is not None and lname is not None:
+                if firstname is not fname and lastname is not lname:
+                    continue
+                
 
             ca, fa, cr, fr = (compute_ca(transcript_si, decode_si, conf, threshold),
                               compute_fa(transcript_si, decode_si,
@@ -506,13 +516,13 @@ elif DATA_SOURCE is 'csv':
 
         return {'power_best_ter_users': power_best_ter_users_sorted, 'power_worst_ter_users': power_worst_ter_users_sorted}
 
-    def get_metrics_change_with_thresholds(filename):
+    def get_metrics_change_with_thresholds(filename, fname=None, lname=None):
         thresholds = range(0, 500, 20)
         threshold_overall_metrics = []
         threshold_ingram_metrics = []
         threshold_outgram_metrics = []
         for threshold in thresholds:
-            info = get_overall_metrics(filename, threshold=threshold)
+            info = get_overall_metrics(filename, threshold=threshold, fname=fname, lname=lname)
             (ca_rate, fa_rate, cr_rate, fr_rate) = info['overall']
             (ingram_ca_rate, ingram_fa_rate, ingram_cr_rate,
              ingram_fr_rate) = info['ingram']
@@ -795,12 +805,12 @@ elif DATA_SOURCE is 'csv':
 
         return inner
 
-    def get_metrics_per_day(filename):
+    def get_metrics_per_day(filename, fname=None, lname=None):
         sorted_dates = get_dates(filename)
         date_overall_metrics = []
         date_ingram_metrics = []
         for year, month, day in sorted_dates:
-            info = get_overall_metrics(filename, threshold=100, day=day)
+            info = get_overall_metrics(filename, threshold=100, day=day, fname=fname, lname=lname)
             (ca_rate, fa_rate, cr_rate, fr_rate) = info['overall']
             (ingram_ca_rate, ingram_fa_rate, ingram_cr_rate,
              ingram_fr_rate) = info['ingram']
@@ -897,15 +907,153 @@ elif DATA_SOURCE is 'csv':
                                 'Total error rate'],
                        tablefmt='simple', numalign="center") + '\n'
 
+                       
+
+    def percent(x, y):
+        if y is not 0:
+            return 100 * float(x)/y
+        else:
+            return None
+    
+    def print_user_hello_command_profile(filename):
+    
+        user_transcript = []
+        for row in get_reader(filename):
+            (transcript_si, transcript, decode_si, decode, conf,
+             decode_time, callsrepath, acoustic_model, date, time,
+             milliseconds, grammarlevel, firstname, lastname,
+             oration_id, chain, store) = process(row)
+            if 'hello' in transcript_si.lower():
+                user_transcript.append((firstname+'_'+lastname, clean_up_phrase(transcript.lower())), )
+
+        user_trans_dict = {}
+        for user, command in user_transcript:
+            user_trans_dict.setdefault(user, [])
+            user_trans_dict[user].append(command)
+          
+          
+        user_command_length = []
+        for user, commands in user_trans_dict.items():
+            counter = Counter([len(command.split(' ')) for command in commands])
+            user_command_length.append((user, counter[2], counter[3], counter[4], percent(counter[3], counter[2])    ))
+        
+        user_command_length = sorted(user_command_length, key=lambda x:x[1], reverse=True)        
+        print tabulate(user_command_length,
+                       headers=['User', 'firstname count', 'first and last name count', 'Unknown', 'fullnames_firstonly_ratio'],
+                       tablefmt='simple', numalign="center") + '\n'  
+
+    def firstvsfullnamestudy(filename):
+    
+        user_transcript = []
+        for row in get_reader(filename):
+            (transcript_si, transcript, decode_si, decode, conf,
+             decode_time, callsrepath, acoustic_model, date, time,
+             milliseconds, grammarlevel, firstname, lastname,
+             oration_id, chain, store) = process(row)
+            if 'hello' in transcript_si.lower():
+                ca = compute_ca(transcript_si, decode_si, int(conf), 100)
+                fa = compute_fa(transcript_si, decode_si, int(conf), 100)
+                fr = compute_fr(transcript_si, decode_si, int(conf), 100)
+                user_transcript.append((firstname+'_'+lastname, clean_up_phrase(transcript.lower()), ca, fa, fr))
+
+        user_trans_dict = {}
+        for user, trans, ca, fa, fr in user_transcript:
+            user_trans_dict.setdefault(user, {'transcript': [], 
+                                             'ca_fullname': [], 'ca_firstname': [],
+                                             'fa_fullname': [], 'fa_firstname': [],
+                                             'fr_fullname': [], 'fr_firstname': []
+                                             })
+            
+            user_trans_dict[user]['transcript'].append(trans)
+            if len(trans.split(' ')) > 2:
+                user_trans_dict[user]['ca_fullname'].append(ca)
+                user_trans_dict[user]['fa_fullname'].append(fa)
+                user_trans_dict[user]['fr_fullname'].append(fr)
+            else:
+                user_trans_dict[user]['ca_firstname'].append(ca)
+                user_trans_dict[user]['fa_firstname'].append(fa)
+                user_trans_dict[user]['fr_firstname'].append(fr)
+          
+        user_metrics = []
+        for user, adict in user_trans_dict.items():
+
+            try:
+                ca_fullname = adict['ca_fullname']
+                ca_firstname = adict['ca_firstname']
+                
+                fa_fullname = adict['fa_fullname']
+                fa_firstname = adict['fa_firstname']
+                
+                fr_fullname = adict['fr_fullname']
+                fr_firstname = adict['fr_firstname']
+            
+                ca_fullname_rate = 100 * sum(ca_fullname)/float(len(ca_fullname))
+                ca_firstname_rate = 100 * sum(ca_firstname)/float(len(ca_firstname))
+                
+                fa_fullname_rate = 100 * sum(fa_fullname)/float(len(fa_fullname))
+                fa_firstname_rate = 100 * sum(fa_firstname)/float(len(fa_firstname))
+                
+                fr_fullname_rate = 100 * sum(fr_fullname)/float(len(fr_fullname))
+                fr_firstname_rate = 100 * sum(fr_firstname)/float(len(fr_firstname))
+                
+            
+                if ca_fullname_rate > ca_firstname_rate:
+                    result_ca = True
+                else:
+                    result_ca = False
+                    
+                if fa_fullname_rate > fa_firstname_rate:
+                    result_fa = True
+                else:
+                    result_fa = False
+                    
+                    
+                if fr_fullname_rate > fr_firstname_rate:
+                    result_fr = True
+                else:
+                    result_fr = False
+                    
+                user_metrics.append((user, ca_fullname_rate, ca_firstname_rate, result_ca, result_fa, result_fr))
+            except:
+                pass
+              
+        print 'the number of times ca full greater than ca first'    
+        ca_temp = [result_ca for _, _, _, result_ca, result_fa, result_fr in user_metrics]        
+        print sum(ca_temp)/float(len(ca_temp))
+        print 'We increase correct accepts by'
+        print (sum(ca_temp)/float(len(ca_temp)))/ (1 - sum(ca_temp)/float(len(ca_temp)))
+        print "times using first names only"
+        
+        print 
+        
+        print 'the number of times fa full greater than fa first'          
+        fa_temp = [result_fa for _, _, _, result_ca, result_fa, result_fr in user_metrics]        
+        print sum(fa_temp)/float(len(fa_temp))
+        print 'We increase false accepts by'
+        print (1 - sum(fa_temp)/float(len(fa_temp)))/ (sum(fa_temp)/float(len(fa_temp)))
+        print "times using first names only"
+        
+        print 
+        
+        print 'the number of times fr full greater than fr first'   
+        fr_temp = [result_fr for _, _, _, result_ca, result_fa, result_fr in user_metrics]
+        print sum(fr_temp)/float(len(fr_temp))
+        print 'We increase false rejects by' 
+        print (1 - sum(fr_temp)/float(len(fr_temp)))/ (sum(fr_temp)/float(len(fr_temp)))
+        print "times using first names only"
+        
+
     def main():
         print 'The data source has been set to csv\n'
         #filename = 'MIC-LEW_20160220-0229_all.csv'
         filename = 'data/test1.interactions'
         filename = 'data/converted.csv'
         filename = 'data/MIC-LEW_20160220-0229_all.Interactions'
-        #filename = 'data/TCS-AUS_20150905_ALL.Interactions'
+        filename = 'data/output.interactions'
+        #filename = 'data/HDC-7135_2016032829_ALL.Interactions'
         # get_user_metrics(filename)
 
+        '''
         print '#' * 60 + '  Threshold of 100  ' + '#' * 60
         print_overall_metrics(filename)
         print '#' * 120 + '#' * len('  Threshold of 100  ')
@@ -940,7 +1088,12 @@ elif DATA_SOURCE is 'csv':
             *get_metrics_change_with_thresholds(filename))
 
         print_oog_word_count(*get_OOV_words(filename))
-
+        
+        #print_user_story(filename, fname='sara', lname='butler')
+        
+        print_user_hello_command_profile(filename)
+        '''
+        firstvsfullnamestudy(filename)
 
 if __name__ == '__main__':
     main()
