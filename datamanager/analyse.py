@@ -416,8 +416,7 @@ elif DATA_SOURCE is 'csv':
         '''Gets a list of users by highest usage count/occurences in 
         interaction file.'''
         csvfilename = filename
-        user_ca_rate_list, _, _, _, _ = get_user_metrics(
-            csvfilename)
+        user_ca_rate_list, _, _, _, _ = get_user_metrics(csvfilename)
         power_users = [name for name, _, _ in sorted(user_ca_rate_list, key=lambda x: x[2], reverse=True)[:num_users]]
         return filter(lambda user: not hasNumbers(user), power_users)
 
@@ -892,8 +891,7 @@ elif DATA_SOURCE is 'csv':
             times_list.append((hour, minute, second))
 
         #sorted_times =  sorted(list(set(times_list)), key=lambda x: 3600*x[0] + 60*x[1] + x[2])
-        sorted_times = sorted(
-            list(set([hour for hour, minute, second in times_list])))
+        sorted_times = sorted(list(set([hour for hour, minute, second in times_list])))
         return sorted_times
 
     def get_metrics_per_hour(filename, hour_start=9, hour_end=18):
