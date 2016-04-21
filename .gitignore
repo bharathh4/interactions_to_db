@@ -8,3 +8,4 @@ output.interactions
 *.db
 *.pyc
 *.Interactions
+results.txt
