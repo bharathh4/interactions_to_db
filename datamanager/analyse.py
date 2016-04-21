@@ -3,7 +3,7 @@ import orm_helper
 import os
 import re
 import math
-from constants import DATA_DIR, DB_PATH, DATA_SOURCE
+from constants import DATA_DIR, DB_PATH, DATA_SOURCE, SKEW_THRESHOLD, DEFAULT_THRESHOLD
 from collections import Counter
 import calendar
 from datetime import date
@@ -14,7 +14,7 @@ try:
     import numpy as np
     import matplotlib.pyplot as plt
 except:
-    print 'Could not import numpy. Need numpy for some methods. Perhaps some other import error happend'
+    print 'Could not import certain libraries. Need numpy/matplotlib/nltk for some methods.'
 
 
 if DATA_SOURCE is 'sqlite':
@@ -35,7 +35,7 @@ if DATA_SOURCE is 'sqlite':
         Transcriptions = orm_helper.Transcriptions
         confs = [getattr(row, param) for row in Transcriptions.select().where(
             Transcriptions.store == store)]
-        plt.hist(confs, 100)
+        plt.hist(confs, DEFAULT_THRESHOLD)
         plt.show()
 
     def get_sample_row():
@@ -119,8 +119,9 @@ elif DATA_SOURCE is 'csv':
         (date, time, milliseconds, grammarlevel, fullname, oration_id,
         chain, store) = callsrepath.split('\\')[-1].split('_')
 
-        #print callsrepath.split('\\')[-1].split('_')
+        
          # Home depot hack in place --- please remove
+         #print callsrepath.split('\\')[-1].split('_')
         #(date, time, milliseconds, grammarlevel, fullname, oration_id,
          #chain, _, store) = callsrepath.split('\\')[-1].split('_')
 
@@ -170,7 +171,15 @@ elif DATA_SOURCE is 'csv':
         else:
             return False
 
-    def get_overall_metrics(filename, threshold=100, day=None, hour=None, fname=None, lname=None):
+    def patch(func):
+        # select only those row equal to transcript_len size
+        # written to patch get_overall_metrics
+        def inner(filename, threshold=DEFAULT_THRESHOLD, transcript_len=2):
+            return func(filename, threshold=DEFAULT_THRESHOLD, transcript_len=2)
+        return inner
+    
+    #@patch
+    def get_overall_metrics(filename, threshold=DEFAULT_THRESHOLD, day=None, hour=None, fname=None, lname=None, transcript_len=None):
         '''computes CA, CR, FR, FA overall and also for in-grammar and out-grammar.
         Returns dictionary of overall CA, CR, FR, FA, in grammar CA, CR, FR, FA
         and out of grammar CA, CR, FR, FA'''
@@ -202,13 +211,18 @@ elif DATA_SOURCE is 'csv':
             if fname is not None and lname is not None:
                 if firstname is not fname and lastname is not lname:
                     continue
-                
+                    
+            if transcript_len is not None:
+                if (len(clean_up_phrase(transcript).split(' ')) != transcript_len) or ('hello' not in clean_up_phrase(transcript.lower())):
+                    continue
+            #print clean_up_phrase(transcript.lower()), len(clean_up_phrase(transcript).split(' '))
 
+            if re.search(re.compile(ur'[0-9]:.*'), transcript_si):
+                threshold = SKEW_THRESHOLD
+            
             ca, fa, cr, fr = (compute_ca(transcript_si, decode_si, conf, threshold),
-                              compute_fa(transcript_si, decode_si,
-                                         conf, threshold),
-                              compute_cr(transcript_si, decode_si,
-                                         conf, threshold),
+                              compute_fa(transcript_si, decode_si, conf, threshold),
+                              compute_cr(transcript_si, decode_si, conf, threshold),
                               compute_fr(transcript_si, decode_si, conf, threshold))
 
             if transcript_si in ['~No interpretations']:
@@ -223,50 +237,32 @@ elif DATA_SOURCE is 'csv':
 
         overall_count = float(len(ca_list))
 
-        ca_rate = 100 * \
-            sum([val for val, gram_status in ca_list]) / overall_count
-        fa_rate = 100 * \
-            sum([val for val, gram_status in fa_list]) / overall_count
-        cr_rate = 100 * \
-            sum([val for val, gram_status in cr_list]) / overall_count
-        fr_rate = 100 * \
-            sum([val for val, gram_status in fr_list]) / overall_count
+        ca_rate = 100 * sum([val for val, gram_status in ca_list]) / overall_count
+        fa_rate = 100 * sum([val for val, gram_status in fa_list]) / overall_count
+        cr_rate = 100 * sum([val for val, gram_status in cr_list]) / overall_count
+        fr_rate = 100 * sum([val for val, gram_status in fr_list]) / overall_count
 
-        ingram_ca_list = [val for val,
-                          gram_status in ca_list if gram_status == 'ING']
-        ingram_fa_list = [val for val,
-                          gram_status in fa_list if gram_status == 'ING']
-        ingram_fr_list = [val for val,
-                          gram_status in fr_list if gram_status == 'ING']
-        ingram_cr_list = [val for val,
-                          gram_status in cr_list if gram_status == 'ING']
+        ingram_ca_list = [val for val, gram_status in ca_list if gram_status == 'ING']
+        ingram_fa_list = [val for val, gram_status in fa_list if gram_status == 'ING']
+        ingram_fr_list = [val for val, gram_status in fr_list if gram_status == 'ING']
+        ingram_cr_list = [val for val, gram_status in cr_list if gram_status == 'ING']
 
         ingram_count = float(len(ingram_ca_list))
 
-        ingram_ca_rate = 100 * \
-            sum([val for val in ingram_ca_list]) / ingram_count
-        ingram_fa_rate = 100 * \
-            sum([val for val in ingram_fa_list]) / ingram_count
-        ingram_fr_rate = 100 * \
-            sum([val for val in ingram_fr_list]) / ingram_count
-        ingram_cr_rate = 100 * \
-            sum([val for val in ingram_cr_list]) / ingram_count
+        ingram_ca_rate = 100 * sum([val for val in ingram_ca_list]) / ingram_count
+        ingram_fa_rate = 100 * sum([val for val in ingram_fa_list]) / ingram_count
+        ingram_fr_rate = 100 * sum([val for val in ingram_fr_list]) / ingram_count
+        ingram_cr_rate = 100 * sum([val for val in ingram_cr_list]) / ingram_count
 
-        outgram_fa_list = [val for val,
-                           gram_status in fa_list if gram_status == 'OOG']
-        outgram_cr_list = [val for val,
-                           gram_status in cr_list if gram_status == 'OOG']
-        outgram_fr_list = [val for val,
-                           gram_status in fr_list if gram_status == 'OOG']
+        outgram_fa_list = [val for val, gram_status in fa_list if gram_status == 'OOG']
+        outgram_cr_list = [val for val, gram_status in cr_list if gram_status == 'OOG']
+        outgram_fr_list = [val for val, gram_status in fr_list if gram_status == 'OOG']
 
         outgram_count = float(len(outgram_fa_list))
 
-        outgram_fa_rate = 100 * \
-            sum([val for val in outgram_fa_list]) / outgram_count
-        outgram_cr_rate = 100 * \
-            sum([val for val in outgram_cr_list]) / outgram_count
-        outgram_fr_rate = 100 * \
-            sum([val for val in outgram_fr_list]) / outgram_count
+        outgram_fa_rate = 100 * sum([val for val in outgram_fa_list]) / outgram_count
+        outgram_cr_rate = 100 * sum([val for val in outgram_cr_list]) / outgram_count
+        outgram_fr_rate = 100 * sum([val for val in outgram_fr_list]) / outgram_count
 
         return {'overall': (ca_rate, fa_rate, cr_rate, fr_rate),
                 'overall_count': overall_count,
@@ -275,9 +271,9 @@ elif DATA_SOURCE is 'csv':
                 'outgram': (outgram_fa_rate, outgram_cr_rate, outgram_fr_rate),
                 'outgram_count': outgram_count}
 
-    def print_overall_metrics(filename, threshold=100):
+    def print_overall_metrics(filename, threshold=DEFAULT_THRESHOLD):
         '''Prints all grammar metrics'''
-        info = get_overall_metrics(filename, threshold=100)
+        info = get_overall_metrics(filename, threshold=DEFAULT_THRESHOLD)
         (ca_rate, fa_rate, cr_rate, fr_rate) = info['overall']
         (ingram_ca_rate, ingram_fa_rate, ingram_cr_rate,
          ingram_fr_rate) = info['ingram']
@@ -313,7 +309,7 @@ elif DATA_SOURCE is 'csv':
                                 'Out of grammar false reject rate'],
                        tablefmt='simple', numalign="center") + '\n'
 
-    def get_user_metrics(filename, threshold=100, day=None):
+    def get_user_metrics(filename, threshold=DEFAULT_THRESHOLD, day=None):
         '''returns metrics like FR, FA, CA, CR per user
         Input can be a .csv file or .interaction file.
         Assumes Lumenvox interactionfile csv (no headers and renamed to .csv) 
@@ -328,12 +324,13 @@ elif DATA_SOURCE is 'csv':
              callsrepath, acoustic_model,
              date, time, milliseconds, grammarlevel, firstname, lastname, oration_id,
              chain, store) = process(row)
+             
+            if re.search(re.compile(ur'[0-9]:.*'), transcript_si):
+                threshold = SKEW_THRESHOLD
 
             ca, fa, cr, fr = (compute_ca(transcript_si, decode_si, conf, threshold),
-                              compute_fa(
-                                  transcript_si, decode_si, conf, threshold),
-                              compute_cr(
-                                  transcript_si, decode_si, conf, threshold),
+                              compute_fa(transcript_si, decode_si, conf, threshold),
+                              compute_cr(transcript_si, decode_si, conf, threshold),
                               compute_fr(transcript_si, decode_si, conf, threshold))
 
             users_ca_dict.setdefault(firstname + '_' + lastname, [])
@@ -363,6 +360,7 @@ elif DATA_SOURCE is 'csv':
         user_mean_conf_list = [(user, float(sum(vals)) / len(vals), len(vals))
                                for user, vals in user_conf_dict.items()]
         return user_ca_rate_list, user_cr_rate_list, user_fa_rate_list, user_fr_rate_list, user_mean_conf_list
+
 
     def print_user_metrics(filename, sort_by_metric='ca'):
         ''' Calls the get_user_metrics and displays it in a sorted manner'''
@@ -420,26 +418,21 @@ elif DATA_SOURCE is 'csv':
         csvfilename = filename
         user_ca_rate_list, _, _, _, _ = get_user_metrics(
             csvfilename)
-        power_users = [name for name, _, _ in sorted(
-            user_ca_rate_list, key=lambda x: x[2], reverse=True)[:num_users]]
+        power_users = [name for name, _, _ in sorted(user_ca_rate_list, key=lambda x: x[2], reverse=True)[:num_users]]
         return filter(lambda user: not hasNumbers(user), power_users)
 
     def get_users_with_top_ca_rates(filename, num_users=10):
         '''Gets a list of users with highest correct accept rates'''
         csvfilename = filename
-        user_ca_rate_list, _, _, _, _ = get_user_metrics(
-            csvfilename)
-        top_ca_users = [name for name, _, _ in sorted(
-            user_ca_rate_list, key=lambda x: x[1], reverse=True)[:num_users]]
+        user_ca_rate_list, _, _, _, _ = get_user_metrics(csvfilename)
+        top_ca_users = [name for name, _, _ in sorted(user_ca_rate_list, key=lambda x: x[1], reverse=True)[:num_users]]
         return filter(lambda user: not hasNumbers(user), top_ca_users)
 
     def get_users_with_lowest_fa_rates(filename, num_users=10):
         '''Gets a list of users with lowest false accept rates'''
         csvfilename = filename
-        _, _, user_fa_rate_list, _, _ = get_user_metrics(
-            csvfilename)
-        low_fa_users = [name for name, _, _ in sorted(
-            user_fa_rate_list, key=lambda x: x[1])[:num_users]]
+        _, _, user_fa_rate_list, _, _ = get_user_metrics(csvfilename)
+        low_fa_users = [name for name, _, _ in sorted(user_fa_rate_list, key=lambda x: x[1])[:num_users]]
         return filter(lambda user: not hasNumbers(user), low_fa_users)
 
     def get_successfull_power_users(filename, with_FA_considered=True, num_users=35):
@@ -447,10 +440,8 @@ elif DATA_SOURCE is 'csv':
         a list of lowest FA rates. Returns an intersection of these three lists
         '''
         power_users = get_power_users(filename, num_users=num_users)
-        top_ca_rates_users = get_users_with_top_ca_rates(
-            filename, num_users=num_users)
-        low_fa_rate_users = get_users_with_lowest_fa_rates(
-            filename, num_users=num_users)
+        top_ca_rates_users = get_users_with_top_ca_rates(filename, num_users=num_users)
+        low_fa_rate_users = get_users_with_lowest_fa_rates(filename, num_users=num_users)
 
         if with_FA_considered:
             return list(sorted(list(set(power_users).intersection
@@ -471,8 +462,7 @@ elif DATA_SOURCE is 'csv':
         lowest total error rate. Also tries to find an intersection of users 
         who are power users and highest total error rate'''
         csvfilename = filename
-        _, _, user_fa_rate_list, user_fr_rate_list, _ = get_user_metrics(
-            csvfilename)
+        _, _, user_fa_rate_list, user_fr_rate_list, _ = get_user_metrics(csvfilename)
 
         user_ters = []
         for (user, fa, _), (_, fr, _) in zip(sorted(user_fa_rate_list, key=lambda x: x[0]), sorted(user_fr_rate_list, key=lambda x: x[0])):
@@ -489,10 +479,8 @@ elif DATA_SOURCE is 'csv':
         worst_ter_users = [user for user, ter in worst_ter]
         power_users = get_power_users(filename, num_users=num_users)
 
-        power_best_ter_users = list(
-            set(power_users).intersection(set(best_ter_users)))
-        power_worst_ter_users = list(
-            set(power_users).intersection(set(worst_ter_users)))
+        power_best_ter_users = list(set(power_users).intersection(set(best_ter_users)))
+        power_worst_ter_users = list(set(power_users).intersection(set(worst_ter_users)))
 
         '''This might seem confusing. All it is doing is using the power user list and populating
         another list if a name in the power list is in best ter list to achieve a sort using number of instances of user'''
@@ -509,10 +497,10 @@ elif DATA_SOURCE is 'csv':
 
         # Limits number of users to 5
 
-        if len(power_best_ter_users_sorted) >= 5:
-            power_best_ter_users_sorted = power_best_ter_users_sorted[:5]
-        if len(power_worst_ter_users_sorted) >= 5:
-            power_worst_ter_users_sorted = power_worst_ter_users_sorted[:5]
+        if len(power_best_ter_users_sorted) >= 10:
+            power_best_ter_users_sorted = power_best_ter_users_sorted[:10]
+        if len(power_worst_ter_users_sorted) >= 10:
+            power_worst_ter_users_sorted = power_worst_ter_users_sorted[:10]
 
         return {'power_best_ter_users': power_best_ter_users_sorted, 'power_worst_ter_users': power_worst_ter_users_sorted}
 
@@ -529,12 +517,9 @@ elif DATA_SOURCE is 'csv':
             (outgram_fa_rate, outgram_cr_rate,
              outgram_fr_rate) = info['outgram']
 
-            threshold_overall_metrics.append(
-                (threshold, ca_rate, fa_rate, cr_rate, fr_rate, fa_rate + fr_rate))
-            threshold_ingram_metrics.append(
-                (threshold, ingram_ca_rate, ingram_fa_rate, ingram_cr_rate, ingram_fr_rate, ingram_fa_rate + ingram_fr_rate))
-            threshold_outgram_metrics.append(
-                (threshold, outgram_fa_rate, outgram_cr_rate, outgram_fr_rate, outgram_fa_rate + outgram_fr_rate))
+            threshold_overall_metrics.append((threshold, ca_rate, fa_rate, cr_rate, fr_rate, fa_rate + fr_rate))
+            threshold_ingram_metrics.append((threshold, ingram_ca_rate, ingram_fa_rate, ingram_cr_rate, ingram_fr_rate, ingram_fa_rate + ingram_fr_rate))
+            threshold_outgram_metrics.append( (threshold, outgram_fa_rate, outgram_cr_rate, outgram_fr_rate, outgram_fa_rate + outgram_fr_rate))
 
         return (threshold_overall_metrics, threshold_ingram_metrics, threshold_outgram_metrics)
 
@@ -636,6 +621,10 @@ elif DATA_SOURCE is 'csv':
                 oration_id, chain, store) = process(row)
 
             command = transcript_si.split(';')[0]
+            
+            if re.search(re.compile(ur'[0-9]:.*'), transcript_si):
+                command = 'skew_numbers'
+                
             commands_conf.setdefault(command, [])
             commands_conf[command].append(int(conf))
 
@@ -661,8 +650,8 @@ elif DATA_SOURCE is 'csv':
         if result:
             for item in result.groups()[0].split(' '):
                 temp = temp.replace(item, '')
-
-        return temp
+        
+        return temp.lstrip(' ').rstrip(' ')
 
     def get_OOV_words(filename):
 
@@ -676,12 +665,61 @@ elif DATA_SOURCE is 'csv':
             if transcript_si in ['~No interpretations']:
                 oov_words.append(transcript)
 
-        oog_phrase_counter = dict(
-            Counter([clean_up_phrase(phrase) for phrase in oov_words]))
-        oog_counter = dict(
-            Counter(filter(lambda x: '++' not in x, (' '.join(oov_words).split(' ')))))
+        oog_phrase_counter = dict(Counter([clean_up_phrase(phrase) for phrase in oov_words]))
+        oog_counter = dict(Counter(filter(lambda x: '++' not in x, (' '.join(oov_words).split(' ')))))
         return oog_counter, oog_phrase_counter
-
+        
+    def classify_oog_phrases(oog_counter, oog_phrase_counter):
+        '''This might end up being a hack for HDC'''
+        import nltk
+        #print sorted(dir(nltk))
+        
+        names_only = []
+        some_single_word = []
+        outgram_version_of_ingram = []
+        conversations = []
+        hello_non_logged_names_or_unknowngroups = []
+        
+        unknown_category = []
+        
+        for oog_phrase, count in oog_phrase_counter.items():
+            temp = oog_phrase.split(' ')
+            if len(temp) == 1:
+                try:
+                    word, pos_tag = nltk.pos_tag(nltk.word_tokenize(oog_phrase))[0]
+                    if pos_tag in ['NNP', 'NNPS']:
+                        names_only.append((word, count))
+                    else:
+                        some_single_word.append((word, count))
+                except:
+                    pass
+            if len(temp) in [2, 3]:
+            #and ('hello' in oog_phrase.lower() or 'message' in oog_phrase.lower()):
+                result = re.search(re.compile(ur'^hello .*'), oog_phrase.lower())
+                if result:
+                    hello_non_logged_names_or_unknowngroups.append((oog_phrase, count))   
+                 
+            if len(temp) in [3, 4, 5] and not ('hello' in oog_phrase.lower() or 'message' in oog_phrase.lower()):                 
+                outgram_version_of_ingram.append((oog_phrase, count))
+                
+            if len(temp) in [2, 3, 4, 5]:
+                unknown_category.append((oog_phrase, count))
+             
+            if len(temp) > 6:
+                conversations.append((oog_phrase, count))             
+            
+        #print outgram_version_of_ingram, sum([count for phrase, count in outgram_version_of_ingram])
+        print '\nThere are %s counts of just a name' % sum([count for phrase, count in names_only])
+        print names_only
+        print '\nThere are %s counts of single word orations' % sum([count for phrase, count in some_single_word])
+        print some_single_word, sum([count for phrase, count in some_single_word])
+        print '\nThere are %s counts of hello non logged on or unknown groups -- or simply oog ' % sum([count for phrase, count in hello_non_logged_names_or_unknowngroups])    
+        print hello_non_logged_names_or_unknowngroups
+        print '\nThere are %s counts of conversations instead of a commmand' % sum([count for phrase, count in conversations])
+        print conversations
+        #print 
+        #print unknown_category, sum([count for phrase, count in unknown_category])
+              
     def print_oog_word_count(oog_counter, oog_phrase_counter):
         sorted_oog_counts = [(oog_word, count) for oog_word, count in sorted(
             oog_counter.items(), key=lambda x: x[1], reverse=True)]
@@ -690,7 +728,11 @@ elif DATA_SOURCE is 'csv':
         print
         print tabulate(sorted_oog_counts, headers=['OOG word', 'Count'],
                        tablefmt='simple', numalign="center") + '\n'
-        print oog_phrase_counter  # Nothing to aggregate and show in this.
+        oog_nontokenized__count = [(oog, count) for oog, count in sorted(oog_phrase_counter.items(), key=lambda x: x[1], reverse=True)]
+           
+        print tabulate(oog_nontokenized__count, headers=['OOG Phrase', 'Count'],
+                       tablefmt='simple', numalign="center") + '\n'           
+        # Nothing to aggregate and show in this.
 
     def get_ingram_outgram_percentage(filename):
 
@@ -754,26 +796,19 @@ elif DATA_SOURCE is 'csv':
                     fr.append((fr_rate, count))
                     t.append((ter, count))
                     c.append(count)
-                ca = sum([rate * count for rate, count in ca]) / \
-                    sum([count for _, count in ca])
-                fa = sum([rate * count for rate, count in fa]) / \
-                    sum([count for _, count in fa])
-                cr = sum([rate * count for rate, count in cr]) / \
-                    sum([count for _, count in cr])
-                fr = sum([rate * count for rate, count in fr]) / \
-                    sum([count for _, count in fr])
-                t = sum([rate * count for rate, count in t]) / \
-                    sum([count for _, count in t])
+                ca = sum([rate * count for rate, count in ca]) / sum([count for _, count in ca])
+                fa = sum([rate * count for rate, count in fa]) / sum([count for _, count in fa])
+                cr = sum([rate * count for rate, count in cr]) / sum([count for _, count in cr])
+                fr = sum([rate * count for rate, count in fr]) / sum([count for _, count in fr])
+                t = sum([rate * count for rate, count in t]) / sum([count for _, count in t])
                 c = sum(c)
 
-                clubed_date_overall_metrics.append(
-                    (weekday, '-', ca, fa, cr, fr, t, c))
+                clubed_date_overall_metrics.append((weekday, '-', ca, fa, cr, fr, t, c))
 
             weekday_dict = {}
             for (weekday, date_str, ca_rate, fa_rate, cr_rate, fr_rate, ter, count) in date_ingram_metrics:
                 weekday_dict.setdefault(weekday, [])
-                weekday_dict[weekday].append(
-                    (date_str, ca_rate, fa_rate, cr_rate, fr_rate, ter, count))
+                weekday_dict[weekday].append((date_str, ca_rate, fa_rate, cr_rate, fr_rate, ter, count))
             clubed_date_ingram_metrics = []
             for weekday, vals in weekday_dict.items():
                 ca, fa, cr, fr, t, c = ([], [], [], [], [], [])
@@ -784,19 +819,13 @@ elif DATA_SOURCE is 'csv':
                     fr.append((fr_rate, count))
                     t.append((ter, count))
                     c.append(count)
-                ca = sum([rate * count for rate, count in ca]) / \
-                    sum([count for _, count in ca])
-                fa = sum([rate * count for rate, count in fa]) / \
-                    sum([count for _, count in fa])
-                cr = sum([rate * count for rate, count in cr]) / \
-                    sum([count for _, count in cr])
-                fr = sum([rate * count for rate, count in fr]) / \
-                    sum([count for _, count in fr])
-                t = sum([rate * count for rate, count in t]) / \
-                    sum([count for _, count in t])
+                ca = sum([rate * count for rate, count in ca]) / sum([count for _, count in ca])
+                fa = sum([rate * count for rate, count in fa]) / sum([count for _, count in fa])
+                cr = sum([rate * count for rate, count in cr]) / sum([count for _, count in cr])
+                fr = sum([rate * count for rate, count in fr]) / sum([count for _, count in fr])
+                t = sum([rate * count for rate, count in t]) / sum([count for _, count in t])
                 c = sum(c)
-                clubed_date_ingram_metrics.append(
-                    (weekday, '-', ca, fa, cr, fr, t, c))
+                clubed_date_ingram_metrics.append((weekday, '-', ca, fa, cr, fr, t, c))
 
             week2dict = {'Monday': 1, 'Tuesday': 2, 'Wednesday': 3,
                          'Thursday': 4, 'Friday': 5, 'Saturday': 6, 'Sunday': 7}
@@ -810,7 +839,7 @@ elif DATA_SOURCE is 'csv':
         date_overall_metrics = []
         date_ingram_metrics = []
         for year, month, day in sorted_dates:
-            info = get_overall_metrics(filename, threshold=100, day=day, fname=fname, lname=lname)
+            info = get_overall_metrics(filename, threshold=DEFAULT_THRESHOLD, day=day, fname=fname, lname=lname)
             (ca_rate, fa_rate, cr_rate, fr_rate) = info['overall']
             (ingram_ca_rate, ingram_fa_rate, ingram_cr_rate,
              ingram_fr_rate) = info['ingram']
@@ -873,13 +902,12 @@ elif DATA_SOURCE is 'csv':
         hour_overall_metrics = []
         hour_ingram_metrics = []
         for hour in hours:
-            info = get_overall_metrics(filename, threshold=100, hour=hour)
+            info = get_overall_metrics(filename, threshold=DEFAULT_THRESHOLD, hour=hour)
             (ca_rate, fa_rate, cr_rate, fr_rate) = info['overall']
             (ingram_ca_rate, ingram_fa_rate, ingram_cr_rate,
              ingram_fr_rate) = info['ingram']
 
-            hour_overall_metrics.append(
-                (hour, ca_rate, fa_rate, cr_rate, fr_rate, fa_rate + fr_rate))
+            hour_overall_metrics.append((hour, ca_rate, fa_rate, cr_rate, fr_rate, fa_rate + fr_rate))
 
             hour_ingram_metrics.append((hour, ingram_ca_rate, ingram_fa_rate, ingram_cr_rate,
                                         ingram_fr_rate, ingram_fr_rate + ingram_fa_rate))
@@ -951,9 +979,10 @@ elif DATA_SOURCE is 'csv':
              milliseconds, grammarlevel, firstname, lastname,
              oration_id, chain, store) = process(row)
             if 'hello' in transcript_si.lower():
-                ca = compute_ca(transcript_si, decode_si, int(conf), 100)
-                fa = compute_fa(transcript_si, decode_si, int(conf), 100)
-                fr = compute_fr(transcript_si, decode_si, int(conf), 100)
+                
+                ca = compute_ca(transcript_si, decode_si, int(conf), DEFAULT_THRESHOLD)
+                fa = compute_fa(transcript_si, decode_si, int(conf), DEFAULT_THRESHOLD)
+                fr = compute_fr(transcript_si, decode_si, int(conf), DEFAULT_THRESHOLD)
                 user_transcript.append((firstname+'_'+lastname, clean_up_phrase(transcript.lower()), ca, fa, fr))
 
         user_trans_dict = {}
@@ -1043,31 +1072,22 @@ elif DATA_SOURCE is 'csv':
         print "times using first names only"
         
 
-    def main():
+    def main(filename):
         print 'The data source has been set to csv\n'
-        #filename = 'MIC-LEW_20160220-0229_all.csv'
-        filename = 'data/test1.interactions'
-        filename = 'data/converted.csv'
-        filename = 'data/MIC-LEW_20160220-0229_all.Interactions'
-        filename = 'data/output.interactions'
-        #filename = 'data/HDC-7135_2016032829_ALL.Interactions'
-        # get_user_metrics(filename)
-
-        '''
+        
         print '#' * 60 + '  Threshold of 100  ' + '#' * 60
         print_overall_metrics(filename)
         print '#' * 120 + '#' * len('  Threshold of 100  ')
         print
-
-        print 'Successful power users according one criteria are', ', '.join(get_successfull_power_users(filename, with_FA_considered=True, num_users=40))
+        
+        print 'Successful power users according one criteria are', ', '.join(get_successfull_power_users(filename, with_FA_considered=True, num_users=5))
         power_best_worst_ter_users = get_best_and_worst_ter_users(
-            filename, num_users=20)
+                filename, num_users=5)
         print 'Sucessfull power users according to another criteria (TER) are', ', '.join(power_best_worst_ter_users['power_best_ter_users'])
         print 'Struggling power users according to (TER) are', ', '.join(power_best_worst_ter_users['power_worst_ter_users'])
         print
 
-        print_transcript_tag_statistics(
-            *get_transcript_tag_statistics(filename))
+        print_transcript_tag_statistics(*get_transcript_tag_statistics(filename))
 
         print_grammar_statistics(get_grammar_statistics(filename))
         print_commands_conf(get_command_confs(filename))
@@ -1084,16 +1104,18 @@ elif DATA_SOURCE is 'csv':
         except:
             print 'Divide by zero error may have happend'
 
-        print_metrics_change_with_thresholds(
-            *get_metrics_change_with_thresholds(filename))
-
+        print_metrics_change_with_thresholds(*get_metrics_change_with_thresholds(filename))
+        print_user_hello_command_profile(filename)
+            
+        #firstvsfullnamestudy(filename)
+            
         print_oog_word_count(*get_OOV_words(filename))
         
-        #print_user_story(filename, fname='sara', lname='butler')
-        
-        print_user_hello_command_profile(filename)
-        '''
-        firstvsfullnamestudy(filename)
-
+        classify_oog_phrases(*get_OOV_words(filename))
+            
+            
+            
+            
 if __name__ == '__main__':
-    main()
+    filename = 'data/HDC-7135_20160416_ALL.Interactions'
+    main(filename)

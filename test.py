@@ -87,12 +87,17 @@ if __name__ == '__main__':
     db_path = 'C:\Users\TheatroIT\Documents\Scripts2\interactions_to_db\output_peewee_integration.sqlite'
     Transcriptions = orm_helper.Transcriptions
     #rows = [row.exactinteractionfilerow for row in Transcriptions.select().where(Transcriptions.chain == 'TheContainerStore')]
-    rows = [row.exactinteractionfilerow for row in Transcriptions.select()]
+    #rows = [row.exactinteractionfilerow for row in Transcriptions.select()]
+    #rows = [row.exactinteractionfilerow for row in Transcriptions.select().where(Transcriptions.chain == 'BassPro')]
+    #rows = [row.exactinteractionfilerow for row in Transcriptions.select().where(Transcriptions.chain == 'Cabelas')]
 
     interactionsfile_header = interactions_composer.get_interactionfile_header()
     interactions_composer.create_interactionsfile(interactionsfile_header, rows)
     '''
-    analyse.main()
+    
+    
+    filename = 'data/TCS-PHX_20160416-17_ALL.Interactions'
+    analyse.main(filename)
     
 
 
