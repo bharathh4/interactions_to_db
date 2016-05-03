@@ -13,6 +13,7 @@ from tabulate import tabulate
 try:
     import numpy as np
     import matplotlib.pyplot as plt
+    import nltk
 except:
     print 'Could not import certain libraries. Need numpy/matplotlib/nltk for some methods.'
 
@@ -95,45 +96,62 @@ elif DATA_SOURCE is 'csv':
     def process(row):
         '''The lumenvox interaction file has a certain format. The function 
         unpacks every interaction file row and extracts information'''
-        (transcript_si,
-         transcript,
-         decode_si,
-         decode,
-         conf,
-         decode_time,
-         callsrepath,
-         _,
-         _,
-         _,
-         acoustic_model,
-         _,
-         _,
-         _,
-         _,
-         _,
-         _,
-         _,
-         _
-         ) = row
-
-        (date, time, milliseconds, grammarlevel, fullname, oration_id,
-        chain, store) = callsrepath.split('\\')[-1].split('_')
-
+        if len(row) == 19:
+            (transcript_si,
+             transcript,
+             decode_si,
+             decode,
+             conf,
+             decode_time,
+             callsrepath,
+             _,
+             _,
+             _,
+             acoustic_model,
+             _,
+             _,
+             _,
+             _,
+             _,
+             _,
+             _,
+             _
+             ) = row
         
-         # Home depot hack in place --- please remove
-         #print callsrepath.split('\\')[-1].split('_')
-        #(date, time, milliseconds, grammarlevel, fullname, oration_id,
-         #chain, _, store) = callsrepath.split('\\')[-1].split('_')
+        
+        
+            callsrename_encoded_data = callsrepath.split('\\')[-1].split('_')
+            
+            # If the dev team doesn't maintain convention, then this might be a 
+            # dictionary of rules
+            if len(callsrename_encoded_data) == 8:
+                (date, time, milliseconds, grammarlevel, fullname, oration_id,
+                chain, store) = callsrename_encoded_data
+            elif len(callsrename_encoded_data) == 9:
+                # The home depot hack for the changed callsre naming convention
+                (date, time, milliseconds, grammarlevel, fullname, oration_id,
+            chain, _, store) = callsrename_encoded_data
+            
+            
+             # Home depot hack in place --- please remove
+             #print callsrepath.split('\\')[-1].split('_')
+            #print row 
+            '''
+            (date, time, milliseconds, grammarlevel, fullname, oration_id,
+            chain, _, store) = callsrepath.split('\\')[-1].split('_')
+            '''
+            try:
+                firstname, lastname = fullname.split(' ')
+            except:
+                firstname, lastname = fullname, fullname
 
-        try:
-            firstname, lastname = fullname.split(' ')
-        except:
-            firstname, lastname = fullname, fullname
-
-        return (transcript_si, transcript, decode_si, decode, int(conf),
-                decode_time, callsrepath, acoustic_model, date, time,
-                milliseconds, grammarlevel, firstname, lastname,
-                oration_id, chain, store.replace('.callsre', ''))
+            return (transcript_si, transcript, decode_si, decode, int(conf),
+                    decode_time, callsrepath, acoustic_model, date, time,
+                    milliseconds, grammarlevel, firstname, lastname,
+                    oration_id, chain, store.replace('.callsre', ''))
+        elif len(row) < 19:
+            print 'This row lacks a transcript'
+            return ()
 
     def compute_ca(transcript, decode, conf, threshold):
         '''Computes correct accept rate. Takes a transcript semantic intent 
@@ -162,6 +180,8 @@ elif DATA_SOURCE is 'csv':
         else:
             return False
 
+    # another way to not distinguish transcript and decode when things are below 100. so fr would be defined as 
+    #if transcript != decode and int(conf) < threshold: return True else: return False
     def compute_cr(transcript, decode, conf, threshold):
         '''Computes correct reject rate. Takes a transcript semantic intent and
         decode semantic intent, the decode confidence and threshold as 
@@ -296,7 +316,7 @@ elif DATA_SOURCE is 'csv':
         print tabulate([data],
                        headers=['In grammar correct accept rate',
                                 'In grammar false accept rate',
-                                'In grammar correct reject rate',
+                                'In grammar correct reject rate (Incorrect reco)',
                                 'In grammar false reject rate'],
                        tablefmt='simple', numalign="center") + '\n'
 
@@ -535,7 +555,7 @@ elif DATA_SOURCE is 'csv':
         print tabulate(threshold_ingram_metrics, headers=['Threshold',
                                                           'In grammar correct accept rate',
                                                           'In grammar false accept rate',
-                                                          'In grammar correct reject rate',
+                                                          'In grammar correct reject rate (Incorrect reco)',
                                                           'In grammar false reject rate',
                                                           'Total error rate'],
                        tablefmt='simple', numalign="center") + '\n'
@@ -553,7 +573,12 @@ elif DATA_SOURCE is 'csv':
         clip_click_tag_counter = 0
         noise_tag_counter = 0
         background_speech_tag_counter = 0
+        static_tag_counter = 0
+        unintelligible_tag_counter = 0
         total = 0
+        
+        temp = []
+        
         for row in get_reader(filename):
             total = total + 1
             (transcript_si, transcript, decode_si, decode, conf,
@@ -561,17 +586,28 @@ elif DATA_SOURCE is 'csv':
                 milliseconds, grammarlevel, firstname, lastname,
                 oration_id, chain, store) = process(row)
             if '++' in transcript:
+                
                 tag_counter = tag_counter + 1
+                temp.append(transcript)
             if 'CLIP' in transcript or 'CLICK' in transcript:
                 clip_click_tag_counter = clip_click_tag_counter + 1
+            
             if 'NOISE' in transcript:
                 noise_tag_counter = noise_tag_counter + 1
             if 'SPEECH' in transcript or 'BACKGROUND' in transcript:
                 background_speech_tag_counter = background_speech_tag_counter + 1
+            if 'STATIC' in transcript:
+                static_tag_counter = static_tag_counter + 1
+            if 'UNINTELLIGIBLE' in transcript:
+                unintelligible_tag_counter = unintelligible_tag_counter + 1
 
-        return (tag_counter, clip_click_tag_counter, noise_tag_counter, background_speech_tag_counter, total)
+        # ++STATIC++
+        #++SPEECH++
+        #print set(temp)         
+        
+        return (tag_counter, clip_click_tag_counter, noise_tag_counter, background_speech_tag_counter, static_tag_counter, unintelligible_tag_counter, total)
 
-    def print_transcript_tag_statistics(tag_counter, clip_click_tag_counter, noise_tag_counter, background_speech_tag_counter, total):
+    def print_transcript_tag_statistics(tag_counter, clip_click_tag_counter, noise_tag_counter, background_speech_tag_counter, static_tag_counter, unintelligible_tag_counter, total):
         # print tabulate([[100 * float(tag_counter) / total, 100 *
         # float(clip_click_tag_counter) / total, 100 * float(noise_tag_counter)
         # / total, 100 * float(background_speech_tag_counter) / total]],
@@ -580,10 +616,15 @@ elif DATA_SOURCE is 'csv':
         # numalign='center')
 
         print
-        print '{:<30}'.format('All tags percentage') + ": " + str(100 * float(tag_counter) / total)
-        print '{:<30}'.format('Clip Click percentage') + ": " + str(100 * float(clip_click_tag_counter) / total)
-        print '{:<30}'.format('Noise percentage') + ": " + str(100 * float(noise_tag_counter) / total)
-        print '{:<30}'.format('Background Speech percentage') + ": " + str(100 * float(background_speech_tag_counter) / total)
+        print '{:<60}'.format('The percentage of transcripts with annotation') + ": " + str(100 * float(tag_counter) / total)
+        print '{:<60}'.format('Clip Click percentage') + ": " + str(100 * float(clip_click_tag_counter) / total)
+        print '{:<60}'.format('Noise percentage') + ": " + str(100 * float(noise_tag_counter) / total)
+        print '{:<60}'.format('Background Speech percentage') + ": " + str(100 * float(background_speech_tag_counter) / total)
+        print '{:<60}'.format('Static percentage') + ": " + str(100 * float(static_tag_counter) / total)
+        print '{:<60}'.format('Unintelligible percentage') + ": " + str(100 * float(unintelligible_tag_counter) / total)
+        print
+        print '{:<60}'.format('Total') + ": " + str(100 * float(clip_click_tag_counter + noise_tag_counter + background_speech_tag_counter + static_tag_counter + unintelligible_tag_counter) / total)
+        
 
     def get_grammar_statistics(filename):
 
@@ -670,8 +711,7 @@ elif DATA_SOURCE is 'csv':
         
     def classify_oog_phrases(oog_counter, oog_phrase_counter):
         '''This might end up being a hack for HDC'''
-        import nltk
-        #print sorted(dir(nltk))
+        
         
         names_only = []
         some_single_word = []
@@ -1071,6 +1111,9 @@ elif DATA_SOURCE is 'csv':
         
 
     def main(filename):
+    
+        filename = clean_interaction(filename)
+
         print 'The data source has been set to csv\n'
         
         print '#' * 60 + '  Threshold of 100  ' + '#' * 60
@@ -1078,9 +1121,9 @@ elif DATA_SOURCE is 'csv':
         print '#' * 120 + '#' * len('  Threshold of 100  ')
         print
         
-        print 'Successful power users according one criteria are', ', '.join(get_successfull_power_users(filename, with_FA_considered=True, num_users=5))
+        print 'Successful power users according one criteria are', ', '.join(get_successfull_power_users(filename, with_FA_considered=True, num_users=50))
         power_best_worst_ter_users = get_best_and_worst_ter_users(
-                filename, num_users=5)
+                filename, num_users=50)
         print 'Sucessfull power users according to another criteria (TER) are', ', '.join(power_best_worst_ter_users['power_best_ter_users'])
         print 'Struggling power users according to (TER) are', ', '.join(power_best_worst_ter_users['power_worst_ter_users'])
         print
@@ -1110,10 +1153,31 @@ elif DATA_SOURCE is 'csv':
         print_oog_word_count(*get_OOV_words(filename))
         
         classify_oog_phrases(*get_OOV_words(filename))
+        
+    def ensure_dir(f):
+       d = os.path.dirname(f)
+       if not os.path.exists(d):
+           os.makedirs(d)
             
-            
+    def clean_interaction(filename):
+       '''Removes no transcript rows'''
+       with open(filename, 'r') as f:
+           s = []
+           for line in f:
+               if len(line) < 100:
+                   s.append(line)
+               else:
+                   if 'null' not in line.split(',')[1]:
+                       s.append(line)
+           data = ''.join(s)
+           tempfilename = os.path.join('data', 'temp.Interactions')
+           ensure_dir(tempfilename)
+           with open(tempfilename, 'w') as f:
+               f.write(data)
+               return 'data/temp.Interactions'
             
             
 if __name__ == '__main__':
     filename = 'data/HDC-7135_20160416_ALL.Interactions'
+    filename = clean_interaction(filename)
     main(filename)
