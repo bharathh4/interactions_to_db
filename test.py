@@ -97,10 +97,12 @@ if __name__ == '__main__':
     
     
     #filename = 'data/HDC-7135_2016_03_30_31_04_01_ALL_v2_troubled2.Interactions'
-    #filename = 'data/HDC-7135_20160422-26_MANAGERS.Interactions'
+    filename = 'data/HDC-7135_20160422-26_MANAGERS.Interactions'
     #filename = 'data/CAB-ALN_20151020_ALL.Interactions'
-    filename = 'data/TCS-AUS_20150905_ALL.Interactions'
+    #filename = 'data/TCS-AUS_20150905_ALL.Interactions'
     #filename = 'data/BPS-OW39_20150908_ALL.Interactions'
+    #analyse.main(filename, name='veloso')
+    
     analyse.main(filename)
     
     

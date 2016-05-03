@@ -10,12 +10,14 @@ from datetime import date
 
 from tabulate import tabulate
 
+    
 try:
+    import nltk
     import numpy as np
     import matplotlib.pyplot as plt
-    import nltk
 except:
     print 'Could not import certain libraries. Need numpy/matplotlib/nltk for some methods.'
+    print 'Try running with the WinPython version'
 
 
 if DATA_SOURCE is 'sqlite':
@@ -151,7 +153,7 @@ elif DATA_SOURCE is 'csv':
                     oration_id, chain, store.replace('.callsre', ''))
         elif len(row) < 19:
             print 'This row lacks a transcript'
-            return ()
+            
 
     def compute_ca(transcript, decode, conf, threshold):
         '''Computes correct accept rate. Takes a transcript semantic intent 
@@ -194,8 +196,12 @@ elif DATA_SOURCE is 'csv':
     def patch(func):
         # select only those row equal to transcript_len size
         # written to patch get_overall_metrics
+        '''
         def inner(filename, threshold=DEFAULT_THRESHOLD, transcript_len=2):
             return func(filename, threshold=DEFAULT_THRESHOLD, transcript_len=2)
+        '''
+        def inner(filename, threshold=DEFAULT_THRESHOLD, day=None, hour=None, fname=None, lname=None, transcript_len=None):
+            return func(filename, threshold=DEFAULT_THRESHOLD, lname='VELOSO')
         return inner
     
     #@patch
@@ -476,7 +482,7 @@ elif DATA_SOURCE is 'csv':
                                )
                         )
 
-    def get_best_and_worst_ter_users(filename, num_users=10):
+    def get_best_and_worst_ter_users(filename, num_users=None):
         '''Tries to find an intersection of users who are power users and 
         lowest total error rate. Also tries to find an intersection of users 
         who are power users and highest total error rate'''
@@ -488,40 +494,81 @@ elif DATA_SOURCE is 'csv':
             ter = fa + fr
             if not hasNumbers(user):
                 user_ters.append((user, ter))
-
+               
+        if num_users is None:               
+            num_users = int(len(user_ters)/2)
+        
         # pick top num_users(say 10) users with best ter
         best_ter = list(sorted(user_ters, key=lambda x: x[1]))[:num_users]
         # pick bottom num_users(say 10) users with best ter
-        worst_ter = list(sorted(user_ters, key=lambda x: x[1]))[-num_users:]
+        worst_ter = list(sorted(user_ters, key=lambda x: x[1], reverse=True))[:num_users]
 
         best_ter_users = [user for user, ter in best_ter]
         worst_ter_users = [user for user, ter in worst_ter]
         power_users = get_power_users(filename, num_users=num_users)
+        
+
 
         power_best_ter_users = list(set(power_users).intersection(set(best_ter_users)))
         power_worst_ter_users = list(set(power_users).intersection(set(worst_ter_users)))
 
         '''This might seem confusing. All it is doing is using the power user list and populating
-        another list if a name in the power list is in best ter list to achieve a sort using number of instances of user'''
-        power_best_ter_users_sorted = []
+        another list if a name in the power list is in best ter list to achieve a sort using number of instances of user
+        Note -- changed above to sort by TER'''
+        power_best_ter_users_ter_sorted = []
+        for user in best_ter_users:
+            if user in power_best_ter_users:
+                power_best_ter_users_ter_sorted.append(user)
+        '''This might seem confusing. All it is doing is using the power user list and populating
+        another list if a name in the power list is in worst ter list to achieve a sort using number of instances of user
+        Note -- changed above to sort by TER'''
+        power_worst_ter_users_ter_sorted = []
+        for user in worst_ter_users:
+            if user in power_worst_ter_users:
+                power_worst_ter_users_ter_sorted.append(user)
+                
+        '''This might seem confusing. All it is doing is using the power user list and populating
+        another list if a name in the power list is in best ter list to achieve a sort using number of instances of user
+        Note -- changed above to sort by TER'''
+        power_best_ter_users_power_sorted = []
         for user in power_users:
             if user in power_best_ter_users:
-                power_best_ter_users_sorted.append(user)
+                power_best_ter_users_power_sorted.append(user)
         '''This might seem confusing. All it is doing is using the power user list and populating
-        another list if a name in the power list is in worst ter list to achieve a sort using number of instances of user'''
-        power_worst_ter_users_sorted = []
+        another list if a name in the power list is in worst ter list to achieve a sort using number of instances of user
+        Note -- changed above to sort by TER'''
+        power_worst_ter_users_power_sorted = []
         for user in power_users:
             if user in power_worst_ter_users:
-                power_worst_ter_users_sorted.append(user)
+                power_worst_ter_users_power_sorted.append(user)
 
         # Limits number of users to 5
 
-        if len(power_best_ter_users_sorted) >= 10:
-            power_best_ter_users_sorted = power_best_ter_users_sorted[:10]
-        if len(power_worst_ter_users_sorted) >= 10:
-            power_worst_ter_users_sorted = power_worst_ter_users_sorted[:10]
+        if len(power_best_ter_users_ter_sorted) >= 10:
+            power_best_ter_users_ter_sorted = power_best_ter_users_ter_sorted[:10]
+        if len(power_worst_ter_users_ter_sorted) >= 10:
+            power_worst_ter_users_ter_sorted = power_worst_ter_users_ter_sorted[:10]
+        if len(power_best_ter_users_power_sorted) >= 10:
+            power_best_ter_users_power_sorted = power_best_ter_users_power_sorted[:10]
+        if len(power_worst_ter_users_power_sorted) >= 10:
+            power_worst_ter_users_power_sorted = power_worst_ter_users_power_sorted[:10]
 
-        return {'power_best_ter_users': power_best_ter_users_sorted, 'power_worst_ter_users': power_worst_ter_users_sorted}
+        return {'power_best_ter_users_tersorted': power_best_ter_users_ter_sorted,
+                'power_worst_ter_users_tersorted': power_worst_ter_users_ter_sorted,
+                'power_best_ter_users_powersorted': power_best_ter_users_power_sorted,
+                'power_worst_ter_users_powersorted': power_worst_ter_users_power_sorted}
+                
+                
+    def print_successful_struggling_users(filename):
+        power_best_worst_ter_users = get_best_and_worst_ter_users(filename)
+        print 'Sucessfull power users according to TER and sorted by TER are', ', '.join(power_best_worst_ter_users['power_best_ter_users_tersorted'])
+        print 'Struggling power users according to TER and sorted by TER are', ', '.join(power_best_worst_ter_users['power_worst_ter_users_tersorted'])
+        print
+        
+        print 'Sucessfull power users according to TER and sorted by frequency are', ', '.join(power_best_worst_ter_users['power_best_ter_users_powersorted'])
+        print 'Struggling power users according to TER and sorted by frequency are', ', '.join(power_best_worst_ter_users['power_worst_ter_users_powersorted'])
+        print
+
 
     def get_metrics_change_with_thresholds(filename, fname=None, lname=None):
         thresholds = range(0, 500, 20)
@@ -706,12 +753,14 @@ elif DATA_SOURCE is 'csv':
                 oov_words.append(transcript)
 
         oog_phrase_counter = dict(Counter([clean_up_phrase(phrase) for phrase in oov_words]))
+        
         oog_counter = dict(Counter(filter(lambda x: '++' not in x, (' '.join(oov_words).split(' ')))))
         return oog_counter, oog_phrase_counter
         
     def classify_oog_phrases(oog_counter, oog_phrase_counter):
         '''This might end up being a hack for HDC'''
         
+        c = 0
         
         names_only = []
         some_single_word = []
@@ -723,15 +772,27 @@ elif DATA_SOURCE is 'csv':
         
         for oog_phrase, count in oog_phrase_counter.items():
             temp = oog_phrase.split(' ')
+            
+            c = c + count
+            '''
             if len(temp) == 1:
+                #word, pos_tag = nltk.pos_tag(nltk.word_tokenize(oog_phrase))
+                print nltk.pos_tag(nltk.word_tokenize(oog_phrase))
                 try:
-                    word, pos_tag = nltk.pos_tag(nltk.word_tokenize(oog_phrase))[0]
+                    #word, pos_tag = nltk.pos_tag(nltk.word_tokenize(oog_phrase))[0]
                     if pos_tag in ['NNP', 'NNPS']:
                         names_only.append((word, count))
+                        print 'Debug: %s' %(oog_phrase)
                     else:
                         some_single_word.append((word, count))
+                        print 'Debug: %s' %(oog_phrase)
                 except:
+                    print 'Debug: %s' %(oog_phrase)
                     pass
+            '''
+            if len(temp) == 1:
+                some_single_word.append((oog_phrase, count))
+            
             if len(temp) in [2, 3]:
             #and ('hello' in oog_phrase.lower() or 'message' in oog_phrase.lower()):
                 result = re.search(re.compile(ur'^hello .*'), oog_phrase.lower())
@@ -748,13 +809,20 @@ elif DATA_SOURCE is 'csv':
                 conversations.append((oog_phrase, count))             
             
         #print outgram_version_of_ingram, sum([count for phrase, count in outgram_version_of_ingram])
-        print '\nThere are %s counts of just a name' % sum([count for phrase, count in names_only])
-        print names_only
-        print '\nThere are %s counts of single word orations' % sum([count for phrase, count in some_single_word])
+        #print '\nThere are %s counts of just a name' % sum([count for phrase, count in names_only])
+        
+        #print names_only
+        
+        single_word_oration_count = sum([count for phrase, count in some_single_word])
+        print '\nThere are %s counts of single word orations out of %s, ie %s percent of all OOG' % (single_word_oration_count, c, 100.0*single_word_oration_count/c)
         print some_single_word, sum([count for phrase, count in some_single_word])
-        print '\nThere are %s counts of hello non logged on or unknown groups -- or simply oog ' % sum([count for phrase, count in hello_non_logged_names_or_unknowngroups])    
+        
+        hello_non_logged_names_or_unknowngroups_count = sum([count for phrase, count in hello_non_logged_names_or_unknowngroups])
+        print '\nThere are %s counts of hello non logged on or unknown groups -- or simply oog out of %s, ie %s percent of all OOG' % (hello_non_logged_names_or_unknowngroups_count, c, 100.0*hello_non_logged_names_or_unknowngroups_count/c)
         print hello_non_logged_names_or_unknowngroups
-        print '\nThere are %s counts of conversations instead of a commmand' % sum([count for phrase, count in conversations])
+        
+        conversations_count = sum([count for phrase, count in conversations])
+        print '\nThere are %s counts of conversations instead of a commmand out of %s, ie %s percent of all OOG' % (conversations_count, c, 100.0*conversations_count/c)
         print conversations
         #print 
         #print unknown_category, sum([count for phrase, count in unknown_category])
@@ -1110,50 +1178,6 @@ elif DATA_SOURCE is 'csv':
         print "times using first names only"
         
 
-    def main(filename):
-    
-        filename = clean_interaction(filename)
-
-        print 'The data source has been set to csv\n'
-        
-        print '#' * 60 + '  Threshold of 100  ' + '#' * 60
-        print_overall_metrics(filename)
-        print '#' * 120 + '#' * len('  Threshold of 100  ')
-        print
-        
-        print 'Successful power users according one criteria are', ', '.join(get_successfull_power_users(filename, with_FA_considered=True, num_users=50))
-        power_best_worst_ter_users = get_best_and_worst_ter_users(
-                filename, num_users=50)
-        print 'Sucessfull power users according to another criteria (TER) are', ', '.join(power_best_worst_ter_users['power_best_ter_users'])
-        print 'Struggling power users according to (TER) are', ', '.join(power_best_worst_ter_users['power_worst_ter_users'])
-        print
-
-        print_transcript_tag_statistics(*get_transcript_tag_statistics(filename))
-
-        print_grammar_statistics(get_grammar_statistics(filename))
-        print_commands_conf(get_command_confs(filename))
-        print_ingram_out_gram(**get_ingram_outgram_percentage(filename))
-
-        print_user_metrics(filename, sort_by_metric='ter')
-
-        print_metrics_per_day(*get_metrics_per_day(filename))
-        new_get_metrics_per_day = club_weekdays(get_metrics_per_day)
-        print_metrics_per_day(*new_get_metrics_per_day(filename))
-        # get_times(filename)
-        try:
-            print_metrics_per_hour(*get_metrics_per_hour(filename))
-        except:
-            print 'Divide by zero error may have happend'
-
-        print_metrics_change_with_thresholds(*get_metrics_change_with_thresholds(filename))
-        print_user_hello_command_profile(filename)
-            
-        #firstvsfullnamestudy(filename)
-            
-        print_oog_word_count(*get_OOV_words(filename))
-        
-        classify_oog_phrases(*get_OOV_words(filename))
-        
     def ensure_dir(f):
        d = os.path.dirname(f)
        if not os.path.exists(d):
@@ -1175,9 +1199,71 @@ elif DATA_SOURCE is 'csv':
            with open(tempfilename, 'w') as f:
                f.write(data)
                return 'data/temp.Interactions'
+               
+    def filter_for_name(filename, name):
+       '''Filters on a name and creates a new interactions file.'''
+       
+       if name is None:
+           return filename
+       
+       with open(filename, 'r') as f:
+           s = []
+           for line in f:
+               if len(line) < 100:
+                   s.append(line)
+               else:
+                   if name in line.split(',')[6]:
+                       s.append(line)
+           data = ''.join(s)
+           tempfilename = os.path.join('data', 'temp.Interactions')
+           ensure_dir(tempfilename)
+           with open(tempfilename, 'w') as f:
+               f.write(data)
+               return 'data/temp.Interactions'
+        
+        
+    def main(filename, name=None):
+    
+        filename = clean_interaction(filename)
+        filename = filter_for_name(filename, name)
+        
+        print 'The data source has been set to csv\n'
+        
+        print '#' * 60 + '  Threshold of 100  ' + '#' * 60
+        print_overall_metrics(filename)
+        print '#' * 120 + '#' * len('  Threshold of 100  ')
+        print
+        
+        
+        print_successful_struggling_users(filename)
+        print_transcript_tag_statistics(*get_transcript_tag_statistics(filename))
+        print_grammar_statistics(get_grammar_statistics(filename))
+        print_commands_conf(get_command_confs(filename))
+        print_ingram_out_gram(**get_ingram_outgram_percentage(filename))
+        print_user_metrics(filename, sort_by_metric='ter')
+        print_metrics_per_day(*get_metrics_per_day(filename))
+        new_get_metrics_per_day = club_weekdays(get_metrics_per_day)
+        print_metrics_per_day(*new_get_metrics_per_day(filename))
+        
+        # get_times(filename)
+        try:
+            print_metrics_per_hour(*get_metrics_per_hour(filename))
+        except:
+            print 'Divide by zero error may have happend'
+
+        print_metrics_change_with_thresholds(*get_metrics_change_with_thresholds(filename))
+        print_user_hello_command_profile(filename)
+            
+        #firstvsfullnamestudy(filename)
+            
+        print_oog_word_count(*get_OOV_words(filename))
+        classify_oog_phrases(*get_OOV_words(filename))
+        
+    
             
             
 if __name__ == '__main__':
     filename = 'data/HDC-7135_20160416_ALL.Interactions'
     filename = clean_interaction(filename)
+    
     main(filename)
