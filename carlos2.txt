@@ -1,0 +1,247 @@
+Could not import certain libraries. Need numpy/matplotlib/nltk for some methods.
+Try running with the WinPython version
+The data source has been set to csv
+
+############################################################  Threshold of 100  ############################################################
+ Correct accept rate    False accept rate    Correct reject rate    False reject rate
+---------------------  -------------------  ---------------------  -------------------
+       46.7742               20.9677                 25                  7.25806
+
+
+
+
+ In grammar correct accept rate    In grammar false accept rate    In grammar correct reject rate (Incorrect reco)    In grammar false reject rate
+--------------------------------  ------------------------------  -------------------------------------------------  ------------------------------
+            81.6901                          1.40845                                   5.6338                                   11.2676
+
+
+
+
+ Out of grammar false accept rate    Out of grammar correct reject rate    Out of grammar false reject rate
+----------------------------------  ------------------------------------  ----------------------------------
+             47.1698                              50.9434                              1.88679
+
+############################################################################################################################################
+
+Sucessfull power users according to TER and sorted by TER are 
+Struggling power users according to TER and sorted by TER are 
+
+Sucessfull power users according to TER and sorted by frequency are 
+Struggling power users according to TER and sorted by frequency are 
+
+
+The percentage of transcripts with annotation               : 16.1290322581
+Clip Click percentage                                       : 4.03225806452
+Noise percentage                                            : 4.83870967742
+Background Speech percentage                                : 6.45161290323
+Static percentage                                           : 0.0
+Unintelligible percentage                                   : 1.61290322581
+
+Total                                                       : 16.935483871
+
+G1 count                      : 62
+G2 count                      : 62
+G1 mean confidence            : 691.919354839
+G2 mean confidence            : 117.741935484
+
+Commands              Mean Confidence    Percentage
+-------------------  -----------------  ------------
+Hello&comma               513.299         54.0323
+~No interpretations       228.528         42.7419
+AnnouncementToday          965.5           1.6129
+AnnouncementHour            987           0.806452
+Message&comma               778           0.806452
+
+
+In grammar percentage         : 57.2580645161
+Out of grammar percentage     : 42.7419354839
+
+USER            Correct accept rate    Correct reject rate    False accept rate    False reject rate    Total error rate    Mean conf    Number of instances
+-------------  ---------------------  ---------------------  -------------------  -------------------  ------------------  -----------  ---------------------
+carlos_veloso         46.7742                  25                  20.9677              7.25806             28.2258          404.831             124
+
+Weekday    Date        Correct accept rate    False accept rate    Correct reject rate    False reject rate    Total error rate    Count
+---------  ---------  ---------------------  -------------------  ---------------------  -------------------  ------------------  -------
+Saturday   4-30-2016         46.7742               20.9677                 25                  7.25806             28.2258          124
+
+
+Weekday    Date        In gram Correct accept rate    In gram False accept rate    In gram Correct reject rate    In gram False reject rate    Total error rate    Count
+---------  ---------  -----------------------------  ---------------------------  -----------------------------  ---------------------------  ------------------  -------
+Saturday   4-30-2016             81.6901                       1.40845                       5.6338                        11.2676                 12.6761          71
+
+Weekday    Date     Correct accept rate    False accept rate    Correct reject rate    False reject rate    Total error rate    Count
+---------  ------  ---------------------  -------------------  ---------------------  -------------------  ------------------  -------
+Saturday   -              46.7742               20.9677                 25                  7.25806             28.2258          124
+
+
+Weekday    Date     In gram Correct accept rate    In gram False accept rate    In gram Correct reject rate    In gram False reject rate    Total error rate    Count
+---------  ------  -----------------------------  ---------------------------  -----------------------------  ---------------------------  ------------------  -------
+Saturday   -                  81.6901                       1.40845                       5.6338                        11.2676                 12.6761          71
+
+Divide by zero error may have happend
+ Threshold    Correct accept rate    False accept rate    Correct reject rate    False reject rate    Total error rate
+-----------  ---------------------  -------------------  ---------------------  -------------------  ------------------
+     0              54.0323               45.9677                  0                     0                45.9677
+    20              52.4194               33.0645               12.9032               1.6129              34.6774
+    40              50.8065               28.2258               17.7419               3.22581             31.4516
+    60              49.1935               26.6129               19.3548               4.83871             31.4516
+    80              46.7742               22.5806               23.3871               7.25806             29.8387
+    100             46.7742               20.9677                 25                  7.25806             28.2258
+    120             45.9677               20.1613               25.8065               8.06452             28.2258
+    140             45.9677               20.1613               25.8065               8.06452             28.2258
+    160             44.3548               19.3548               26.6129               9.67742             29.0323
+    180             44.3548               18.5484               27.4194               9.67742             28.2258
+    200             43.5484               18.5484               27.4194               10.4839             29.0323
+    220             42.7419               18.5484               27.4194               11.2903             29.8387
+    240             41.9355               16.9355               29.0323               12.0968             29.0323
+    260             41.129                12.9032               33.0645               12.9032             25.8065
+    280             41.129                12.0968               33.871                12.9032                25
+    300             41.129                12.0968               33.871                12.9032                25
+    320             40.3226               11.2903               34.6774               13.7097                25
+    340             40.3226               10.4839               35.4839               13.7097             24.1935
+    360             39.5161               9.67742               36.2903               14.5161             24.1935
+    380             39.5161               8.06452               37.9032               14.5161             22.5806
+    400             39.5161               8.06452               37.9032               14.5161             22.5806
+    420             38.7097               8.06452               37.9032               15.3226             23.3871
+    440             36.2903               8.06452               37.9032               17.7419             25.8065
+    460             35.4839               8.06452               37.9032               18.5484             26.6129
+    480             33.871                8.06452               37.9032               20.1613             28.2258
+
+ Threshold    In grammar correct accept rate    In grammar false accept rate    In grammar correct reject rate (Incorrect reco)    In grammar false reject rate    Total error rate
+-----------  --------------------------------  ------------------------------  -------------------------------------------------  ------------------------------  ------------------
+     0                   92.9577                          7.04225                                      0                                        0                      7.04225
+    20                   91.5493                          4.22535                                   2.8169                                   1.40845                    5.6338
+    40                   88.7324                          4.22535                                   2.8169                                   4.22535                    8.4507
+    60                   85.9155                          4.22535                                   2.8169                                   7.04225                   11.2676
+    80                   81.6901                          1.40845                                   5.6338                                   11.2676                   12.6761
+    100                  81.6901                          1.40845                                   5.6338                                   11.2676                   12.6761
+    120                  80.2817                          1.40845                                   5.6338                                   12.6761                   14.0845
+    140                  80.2817                          1.40845                                   5.6338                                   12.6761                   14.0845
+    160                  77.4648                          1.40845                                   5.6338                                    15.493                   16.9014
+    180                  77.4648                          1.40845                                   5.6338                                    15.493                   16.9014
+    200                  76.0563                          1.40845                                   5.6338                                   16.9014                   18.3099
+    220                  74.6479                          1.40845                                   5.6338                                   18.3099                   19.7183
+    240                  73.2394                          1.40845                                   5.6338                                   19.7183                   21.1268
+    260                   71.831                          1.40845                                   5.6338                                   21.1268                   22.5352
+    280                   71.831                          1.40845                                   5.6338                                   21.1268                   22.5352
+    300                   71.831                          1.40845                                   5.6338                                   21.1268                   22.5352
+    320                  70.4225                          1.40845                                   5.6338                                   22.5352                   23.9437
+    340                  70.4225                          1.40845                                   5.6338                                   22.5352                   23.9437
+    360                  69.0141                             0                                      7.04225                                  23.9437                   23.9437
+    380                  69.0141                             0                                      7.04225                                  23.9437                   23.9437
+    400                  69.0141                             0                                      7.04225                                  23.9437                   23.9437
+    420                  67.6056                             0                                      7.04225                                  25.3521                   25.3521
+    440                  63.3803                             0                                      7.04225                                  29.5775                   29.5775
+    460                  61.9718                             0                                      7.04225                                  30.9859                   30.9859
+    480                  59.1549                             0                                      7.04225                                  33.8028                   33.8028
+
+ Threshold    Out of grammar false accept rate    Out of grammar correct reject rate    Out of grammar false reject rate    Total error rate
+-----------  ----------------------------------  ------------------------------------  ----------------------------------  ------------------
+     0                    98.1132                                 0                                    0                        98.1132
+    20                    71.6981                              26.4151                              1.88679                     73.5849
+    40                    60.3774                              37.7358                              1.88679                     62.2642
+    60                    56.6038                              41.5094                              1.88679                     58.4906
+    80                    50.9434                              47.1698                              1.88679                     52.8302
+    100                   47.1698                              50.9434                              1.88679                     49.0566
+    120                    45.283                              52.8302                              1.88679                     47.1698
+    140                    45.283                              52.8302                              1.88679                     47.1698
+    160                   43.3962                               54.717                              1.88679                      45.283
+    180                   41.5094                              56.6038                              1.88679                     43.3962
+    200                   41.5094                              56.6038                              1.88679                     43.3962
+    220                   41.5094                              56.6038                              1.88679                     43.3962
+    240                   37.7358                              60.3774                              1.88679                     39.6226
+    260                   28.3019                              69.8113                              1.88679                     30.1887
+    280                   26.4151                              71.6981                              1.88679                     28.3019
+    300                   26.4151                              71.6981                              1.88679                     28.3019
+    320                   24.5283                              73.5849                              1.88679                     26.4151
+    340                   22.6415                              75.4717                              1.88679                     24.5283
+    360                   22.6415                              75.4717                              1.88679                     24.5283
+    380                   18.8679                              79.2453                              1.88679                     20.7547
+    400                   18.8679                              79.2453                              1.88679                     20.7547
+    420                   18.8679                              79.2453                              1.88679                     20.7547
+    440                   18.8679                              79.2453                              1.88679                     20.7547
+    460                   18.8679                              79.2453                              1.88679                     20.7547
+    480                   18.8679                              79.2453                              1.88679                     20.7547
+
+User            firstname count    first and last name count    Unknown    fullnames_firstonly_ratio
+-------------  -----------------  ---------------------------  ---------  ---------------------------
+carlos_veloso         45                      22                   0                48.8889
+
+
+OOG word       Count
+------------  -------
+HELLO           27
+LAW             13
+GARDEN          12
+MIKE            11
+ANNOUNCEMENT    11
+TODAY            7
+CENTER           4
+LUST             3
+STEVE            3
+GROUP            2
+HOUR             2
+HEAD             2
+RETURNS          2
+HARD             1
+SOME             1
+TINBA            1
+HELO             1
+YOU              1
+GUYS             1
+PRO              1
+WHO              1
+CASHIER          1
+CASH             1
+JOHN             1
+CHECK            1
+LOCATE           1
+IS               1
+THERE            1
+MICHAEL          1
+HEY              1
+DELIVERIES       1
+IN               1
+THE              1
+COME             1
+JORDON           1
+OF               1
+MICHAE           1
+GARGEN           1
+NOW              1
+
+OOG Phrase                              Count
+-------------------------------------  -------
+HELLO MIKE LAW                            9
+                                          8
+HELLO GARDEN                              5
+ANNOUNCEMENT TODAY GARDEN                 4
+ANNOUNCEMENT TODAY GARDEN CENTER          3
+HELLO                                     3
+HELLO STEVE LUST                          3
+ANNOUNCEMENT HOUR GROUP                   2
+HELLO RETURNS                             2
+HELLO MICHAEL LAW                         1
+ANNOUNCEMENT GARGEN CENTER                1
+HELLO JOHN                                1
+HEY                                       1
+MICHAE LAW                                1
+HELLO  TINBA                              1
+HELO                                      1
+ANNOUNCEMENT NOW JORDON                   1
+LOCATE MIKE LAW                           1
+YOU GUYS CHECK SOME OF THE DELIVERIES     1
+WHO IS THERE                              1
+MIKE LAW COME IN                          1
+HEAD CASH HEAD CASHIER                    1
+HELLO PRO                                 1
+
+
+There are 13 counts of single word orations out of 53, ie 24.5283018868 percent of all OOG
+[('', 8), ('HEY', 1), ('HELO', 1), ('HELLO', 3)] 13
+
+There are 23 counts of hello non logged on or unknown groups -- or simply oog out of 53, ie 43.3962264151 percent of all OOG
+[('HELLO MIKE LAW', 9), ('HELLO MICHAEL LAW', 1), ('HELLO JOHN', 1), ('HELLO  TINBA', 1), ('HELLO RETURNS', 2), ('HELLO GARDEN', 5), ('HELLO PRO', 1), ('HELLO STEVE LUST', 3)]
+
+There are 1 counts of conversations instead of a commmand out of 53, ie 1.88679245283 percent of all OOG
+[('YOU GUYS CHECK SOME OF THE DELIVERIES', 1)]

@@ -1220,10 +1220,79 @@ elif DATA_SOURCE is 'csv':
            with open(tempfilename, 'w') as f:
                f.write(data)
                return 'data/temp.Interactions'
+    
+
+    def location_correlator(filename, location_oration_id_dict):
+        ca_list, cr_list, fa_list, fr_list = [], [], [], []
+        location_anymetriclist_dict = {}
+        reader = get_reader(filename)
+        threshold = DEFAULT_THRESHOLD
+        for row in reader:
+            (transcript_si, transcript, decode_si, decode, conf, decode_time,
+             callsrepath, acoustic_model,
+             date, time, milliseconds, grammarlevel, firstname, lastname, oration_id,
+             chain, store) = process(row)
+
+            if re.search(re.compile(ur'[0-9]:.*'), transcript_si):
+                threshold = SKEW_THRESHOLD
+            
+            ca, fa, cr, fr = (compute_ca(transcript_si, decode_si, conf, threshold),
+                              compute_fa(transcript_si, decode_si, conf, threshold),
+                              compute_cr(transcript_si, decode_si, conf, threshold),
+                              compute_fr(transcript_si, decode_si, conf, threshold))
+
+            for location, or_ids in location_oration_id_dict.items():
+                location_anymetriclist_dict.setdefault(location, {'ca_list': [], 'fa_list': [], 'cr_list': [], 'fr_list': []})
+                
+                if oration_id in or_ids:
+                    location_anymetriclist_dict[location]['ca_list'].append(ca)
+                    location_anymetriclist_dict[location]['fa_list'].append(fa)
+                    location_anymetriclist_dict[location]['cr_list'].append(cr)
+                    location_anymetriclist_dict[location]['fr_list'].append(fr)
+                else:
+                    pass
+                    
         
+        for location, adict in location_anymetriclist_dict.items():
         
+            print '#' * 79
+            try:
+                
+                print location
+                 
+                metrics = location_anymetriclist_dict[location]['ca_list']
+                
+                print 'CA is %s out of %s' % (sum(metrics), float(len(metrics)))
+                metrics = location_anymetriclist_dict[location]['fa_list']
+                print 'FA is %s out of %s' % (sum(metrics), float(len(metrics)))
+                metrics = location_anymetriclist_dict[location]['cr_list']
+                print 'CR is %s out of %s' % (sum(metrics), float(len(metrics)))
+                metrics = location_anymetriclist_dict[location]['fr_list']
+                print 'FR is %s out of %s' % (sum(metrics), float(len(metrics)))
+                ter = sum([sum(vals) for key, vals in location_anymetriclist_dict[location].items() if key in ['fa_list', 'fr_list']])
+                print 'TER is %s out of %s' % (ter, float(len(metrics)))
+                if len(metrics):
+                    print 'TER percentage is: %s' % (100 * ter/float(len(metrics)))
+            except:
+                pass
+            print '#' * 79
+     
+    def get_orationid_locations():
+        adict = {}
+        with open('data/HDC_Saturday_Command_Locations.csv', 'r') as f:
+            lines = [line for line in f]
+            for line in lines:
+                oration_id, device, tagout, time_epoch, location = line.split(',')
+                adict.setdefault(location, set([]))
+                adict[location].add(oration_id.split('_')[1])
+                
+        return adict
+     
     def main(filename, name=None):
     
+        
+        
+        
         filename = clean_interaction(filename)
         filename = filter_for_name(filename, name)
         
@@ -1242,7 +1311,7 @@ elif DATA_SOURCE is 'csv':
         print_ingram_out_gram(**get_ingram_outgram_percentage(filename))
         print_user_metrics(filename, sort_by_metric='ter')
         print_metrics_per_day(*get_metrics_per_day(filename))
-        new_get_metrics_per_day = club_weekdays(get_metrics_per_day)
+        new_get_metrics_per_day = club_weekdays(get_metrics_per_day) # a decorator
         print_metrics_per_day(*new_get_metrics_per_day(filename))
         
         # get_times(filename)
@@ -1259,7 +1328,10 @@ elif DATA_SOURCE is 'csv':
         print_oog_word_count(*get_OOV_words(filename))
         classify_oog_phrases(*get_OOV_words(filename))
         
-    
+        
+        location_oration_id_dict = get_orationid_locations()
+        location_correlator(filename, location_oration_id_dict)
+        
             
             
 if __name__ == '__main__':
