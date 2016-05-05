@@ -29,10 +29,12 @@ def create_interactionsfile(interactionsfile_header, rows):
         f.write(interactionsfile_header + '\n')
         for row in rows:
             
+            #f.write(row)
+            #row = row.encode('ascii', 'ignore').decode('ascii')
             f.write(row)
             '''
             try:
-                #row = row.encode('ascii', 'ignore').decode('ascii')
+                row = row.encode('ascii', 'ignore').decode('ascii')
                 f.write(row)
             except:
                 print 'Could not write this row to interactions file'
@@ -68,6 +70,55 @@ def create_interactionsfile_for_users(userslist, filename):
     interactionsfile_header = get_interactionfile_header()
     create_interactionsfile(interactionsfile_header, needed_rows)
     
+    
+def create_interactionsfile_for(filename, needed_items=None, attribute='transcript'):
+    '''Retains only those rows whose critera/attribute has words/keywords 
+    from the needed_items parameters and write out a new interaction file'''
+    
+    needed_rows = []
+    for row in get_reader(filename):
+        
+        (transcript_si, transcript, decode_si, decode, conf, decode_time,
+             callsrepath, acoustic_model,
+             date, time, milliseconds, grammarlevel, firstname, lastname, oration_id,
+             chain, store) = process(row)
+             
+        adict = {'transcript_si': transcript_si, 
+                'transcript': transcript, 
+                'decode_si':  decode_si, 
+                'decode': decode, 
+                'conf': conf, 
+                'decode_time': decode_time, 
+                'callsrepath': callsrepath, 
+                'callsrepath': acoustic_model, 
+                'date': date, 
+                'time': time, 
+                'milliseconds': milliseconds, 
+                'grammarlevel': grammarlevel, 
+                'firstname': firstname, 
+                'lastname': lastname, 
+                'oration_id': oration_id,
+                'chain': chain, 
+                'store': store}
+                   
+        for item in adict[attribute].lower().split(' '):
+            if item in map(lambda x: x.lower(), needed_items):
+                needed_rows.append(','.join(row)+'\n')
+
+    interactionsfile_header = get_interactionfile_header()
+    create_interactionsfile(interactionsfile_header, needed_rows)
+    
+    
+def create_interactionsfile_for_movement_change(filenames):
+    needed_rows = analyse.compare_interactions(filenames)
+    
+    
+    needed_rows = [','.join(row)+'\n' for row in needed_rows]
+    
+    interactionsfile_header = get_interactionfile_header()
+    create_interactionsfile(interactionsfile_header, needed_rows)
+    
 if __name__ == '__main__':
     test()
+    
     

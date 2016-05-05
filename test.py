@@ -102,8 +102,13 @@ if __name__ == '__main__':
     #filename = 'data/TCS-AUS_20150905_ALL.Interactions'
     #filename = 'data/BPS-OW39_20150908_ALL.Interactions'
     #analyse.main(filename, name='veloso')
-    filename = 'data/just_carlos30_1.Interactions'
-    analyse.main(filename)
+    #filename = 'data/just_carlos30_1.Interactions'
+    
+    
+    
+    #filename = 'data/HDC-7135_20160430-0501_ALL.Interactions'
+    #filename = 'data/HDC-7135_20160430-0501_ALL_grammar-mods.Interactions'
+    #analyse.main(filename)
     
     
     '''
@@ -113,5 +118,11 @@ if __name__ == '__main__':
     filename = 'data/HDC-7135_20160430-0501_ALL - JUST CARLOS.Interactions'
     interactions_composer.create_interactionsfile_for_users(troubled_users, filename)
     '''
-
-
+    
+    '''
+    filename = 'data/HDC-7135_20160430-0501_ALL.Interactions'
+    interactions_composer.create_interactionsfile_for(filename, needed_items=['micheal', 'mike', 'michael'], attribute='transcript')
+    '''
+    
+    filenames = ['data/HDC-7135_20160430-0501_ALL.interactions', 'data/HDC-7135_20160430-0501_ALL_grammar-mods.interactions']
+    interactions_composer.create_interactionsfile_for_movement_change(filenames)

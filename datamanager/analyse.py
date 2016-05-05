@@ -1177,6 +1177,8 @@ elif DATA_SOURCE is 'csv':
         print (1 - sum(fr_temp)/float(len(fr_temp)))/ (sum(fr_temp)/float(len(fr_temp)))
         print "times using first names only"
         
+        
+
 
     def ensure_dir(f):
        d = os.path.dirname(f)
@@ -1287,14 +1289,78 @@ elif DATA_SOURCE is 'csv':
                 adict[location].add(oration_id.split('_')[1])
                 
         return adict
+        
+    def compare_interactions_if_sorted(filenames):
+        readers = [list(get_reader(filename)) for filename in filenames]
+        for item in zip(*readers):
+            a, b = item
+            print a
+            print 
+            print b
+            break
+            
+    def compare_interactions(filenames):
+        readers = [list(get_reader(filename)) for filename in filenames]
+        adict = {}
+        for reader in readers:
+            for row in reader:
+                (transcript_si, transcript, decode_si, decode, conf,
+             decode_time, callsrepath, acoustic_model, date, time,
+             milliseconds, grammarlevel, firstname, lastname,
+             oration_id, chain, store) = process(row)
+             
+                adict.setdefault(oration_id, [])
+                adict[oration_id].append(row)
+                
+        rows_that_changed = []
+        threshold = DEFAULT_THRESHOLD
+        for or_id, rows in adict.items():
+        
+            #print or_id
+            try:
+                (transcript_si, transcript, decode_si, decode, conf,
+                 decode_time, callsrepath, acoustic_model, date, time,
+                 milliseconds, grammarlevel, firstname, lastname,
+                 oration_id, chain, store) = process(rows[0])
+                 
+                ca_org, fa_org, cr_org, fr_org = (compute_ca(transcript_si, decode_si, conf, threshold),
+                                  compute_fa(transcript_si, decode_si, conf, threshold),
+                                  compute_cr(transcript_si, decode_si, conf, threshold),
+                                  compute_fr(transcript_si, decode_si, conf, threshold))
+                                  
+                ca_in_org = ca_org and transcript_si not in ['~No interpretations']
+                 
+                
+                (transcript_si, transcript, decode_si, decode, conf,
+                     decode_time, callsrepath, acoustic_model, date, time,
+                     milliseconds, grammarlevel, firstname, lastname,
+                     oration_id, chain, store) = process(rows[1])
+                
+                 
+                ca_new, fa_new, cr_new, fr_new = (compute_ca(transcript_si, decode_si, conf, threshold),
+                                  compute_fa(transcript_si, decode_si, conf, threshold),
+                                  compute_cr(transcript_si, decode_si, conf, threshold),
+                                  compute_fr(transcript_si, decode_si, conf, threshold))
+                 
+                fr_in_new = fr_new and transcript_si not in ['~No interpretations']
+                
+                if ca_in_org and fr_in_new:
+                    rows_that_changed.append(rows[0])
+            except:
+                continue             
+        return rows_that_changed
+            
+             
      
     def main(filename, name=None):
     
         
         
         
+        
         filename = clean_interaction(filename)
         filename = filter_for_name(filename, name)
+        
         
         print 'The data source has been set to csv\n'
         
