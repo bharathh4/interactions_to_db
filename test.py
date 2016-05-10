@@ -106,9 +106,9 @@ if __name__ == '__main__':
     
     
     
-    #filename = 'data/HDC-7135_20160430-0501_ALL.Interactions'
+    filename = 'data/HDC-7135_20160430-0501_ALL.Interactions'
     #filename = 'data/HDC-7135_20160430-0501_ALL_grammar-mods.Interactions'
-    #analyse.main(filename)
+    analyse.main(filename)
     
     
     '''
@@ -124,5 +124,5 @@ if __name__ == '__main__':
     interactions_composer.create_interactionsfile_for(filename, needed_items=['micheal', 'mike', 'michael'], attribute='transcript')
     '''
     
-    filenames = ['data/HDC-7135_20160430-0501_ALL.interactions', 'data/HDC-7135_20160430-0501_ALL_grammar-mods.interactions']
-    interactions_composer.create_interactionsfile_for_movement_change(filenames)
+    #filenames = ['data/HDC-7135_20160430-0501_ALL.interactions', 'data/HDC-7135_20160430-0501_ALL_grammar-mods.interactions']
+    #interactions_composer.create_interactionsfile_for_movement_change(filenames)

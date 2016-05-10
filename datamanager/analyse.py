@@ -614,8 +614,10 @@ elif DATA_SOURCE is 'csv':
                                                            'Total error rate'],
                        tablefmt='simple', numalign="center") + '\n'
 
-    def get_transcript_tag_statistics(filename):
-
+    def get_transcript_tag_statistics(filename, threshold=None):
+        ''' If a threshold parameter is passed, this function will only 
+        get those orations that are below the threshold.
+        '''
         tag_counter = 0
         clip_click_tag_counter = 0
         noise_tag_counter = 0
@@ -627,13 +629,30 @@ elif DATA_SOURCE is 'csv':
         temp = []
         
         for row in get_reader(filename):
-            total = total + 1
+            
             (transcript_si, transcript, decode_si, decode, conf,
                 decode_time, callsrepath, acoustic_model, date, time,
                 milliseconds, grammarlevel, firstname, lastname,
                 oration_id, chain, store) = process(row)
-            if '++' in transcript:
+            
+            # if there is a optional parameter of threshold.
+            # Check if conf is less than threshold: if it is, do nothing, as
+            # in a pass statement (doing nothing will go and get the 
+            # statistics). If it is greater - don't collect the statistics
+            # This way we filter for tags counts only for those orations
+            # that failed.
+            
+            if threshold:
+                message = 'These are the statistics for failed orations'
+                if int(conf) < threshold:
+                    pass
+                else:
+                    continue
+            else:
+                message = 'These are the statistics for all orations'
                 
+            total = total + 1
+            if '++' in transcript:
                 tag_counter = tag_counter + 1
                 temp.append(transcript)
             if 'CLIP' in transcript or 'CLICK' in transcript:
@@ -652,9 +671,16 @@ elif DATA_SOURCE is 'csv':
         #++SPEECH++
         #print set(temp)         
         
-        return (tag_counter, clip_click_tag_counter, noise_tag_counter, background_speech_tag_counter, static_tag_counter, unintelligible_tag_counter, total)
-
-    def print_transcript_tag_statistics(tag_counter, clip_click_tag_counter, noise_tag_counter, background_speech_tag_counter, static_tag_counter, unintelligible_tag_counter, total):
+        return (tag_counter, clip_click_tag_counter, noise_tag_counter, 
+        background_speech_tag_counter, static_tag_counter, 
+        unintelligible_tag_counter, total, message)
+    
+        
+        
+    def print_transcript_tag_statistics(tag_counter, clip_click_tag_counter, 
+    noise_tag_counter, background_speech_tag_counter, static_tag_counter, 
+    unintelligible_tag_counter, total, message):
+    
         # print tabulate([[100 * float(tag_counter) / total, 100 *
         # float(clip_click_tag_counter) / total, 100 * float(noise_tag_counter)
         # / total, 100 * float(background_speech_tag_counter) / total]],
@@ -663,6 +689,8 @@ elif DATA_SOURCE is 'csv':
         # numalign='center')
 
         print
+        
+        print '#' * 30 + ' ' + message + ' ' + '#' * 30
         print '{:<60}'.format('The percentage of transcripts with annotation') + ": " + str(100 * float(tag_counter) / total)
         print '{:<60}'.format('Clip Click percentage') + ": " + str(100 * float(clip_click_tag_counter) / total)
         print '{:<60}'.format('Noise percentage') + ": " + str(100 * float(noise_tag_counter) / total)
@@ -670,7 +698,8 @@ elif DATA_SOURCE is 'csv':
         print '{:<60}'.format('Static percentage') + ": " + str(100 * float(static_tag_counter) / total)
         print '{:<60}'.format('Unintelligible percentage') + ": " + str(100 * float(unintelligible_tag_counter) / total)
         print
-        print '{:<60}'.format('Total') + ": " + str(100 * float(clip_click_tag_counter + noise_tag_counter + background_speech_tag_counter + static_tag_counter + unintelligible_tag_counter) / total)
+        
+        #print '{:<60}'.format('Total') + ": " + str(100 * float(clip_click_tag_counter + noise_tag_counter + background_speech_tag_counter + static_tag_counter + unintelligible_tag_counter) / total)
         
 
     def get_grammar_statistics(filename):
@@ -740,8 +769,12 @@ elif DATA_SOURCE is 'csv':
         
         return temp.lstrip(' ').rstrip(' ')
 
-    def get_OOV_words(filename):
-
+    def get_OOV_words(filename, threshold=None):
+        ''' If a threshold parameter is passed, this function will only 
+        get those orations that are below the threshold. For the plain 
+        vanailla one don't pass any threshold param
+        '''
+        
         oov_words = []
         for row in get_reader(filename):
             (transcript_si, transcript, decode_si, decode, conf,
@@ -749,6 +782,12 @@ elif DATA_SOURCE is 'csv':
                 milliseconds, grammarlevel, firstname, lastname,
                 oration_id, chain, store) = process(row)
 
+            if threshold:
+                if int(conf) < threshold:
+                    pass
+                else:
+                    continue
+                
             if transcript_si in ['~No interpretations']:
                 oov_words.append(transcript)
 
@@ -833,8 +872,12 @@ elif DATA_SOURCE is 'csv':
 
         # This is because the same oog doesn't said over and over agian
         print
+        '''
         print tabulate(sorted_oog_counts, headers=['OOG word', 'Count'],
                        tablefmt='simple', numalign="center") + '\n'
+        '''
+        print sorted_oog_counts
+        print
         oog_nontokenized__count = [(oog, count) for oog, count in sorted(oog_phrase_counter.items(), key=lambda x: x[1], reverse=True)]
            
         print tabulate(oog_nontokenized__count, headers=['OOG Phrase', 'Count'],
@@ -1279,9 +1322,9 @@ elif DATA_SOURCE is 'csv':
                 pass
             print '#' * 79
      
-    def get_orationid_locations():
+    def get_orationid_locations(filename):
         adict = {}
-        with open('data/HDC_Saturday_Command_Locations.csv', 'r') as f:
+        with open(filename, 'r') as f:
             lines = [line for line in f]
             for line in lines:
                 oration_id, device, tagout, time_epoch, location = line.split(',')
@@ -1354,10 +1397,6 @@ elif DATA_SOURCE is 'csv':
      
     def main(filename, name=None):
     
-        
-        
-        
-        
         filename = clean_interaction(filename)
         filename = filter_for_name(filename, name)
         
@@ -1372,6 +1411,7 @@ elif DATA_SOURCE is 'csv':
         
         print_successful_struggling_users(filename)
         print_transcript_tag_statistics(*get_transcript_tag_statistics(filename))
+        print_transcript_tag_statistics(*get_transcript_tag_statistics(filename, threshold=100))
         print_grammar_statistics(get_grammar_statistics(filename))
         print_commands_conf(get_command_confs(filename))
         print_ingram_out_gram(**get_ingram_outgram_percentage(filename))
@@ -1394,8 +1434,14 @@ elif DATA_SOURCE is 'csv':
         print_oog_word_count(*get_OOV_words(filename))
         classify_oog_phrases(*get_OOV_words(filename))
         
+        print
+        print '#' * 60 + ' Failed ones only ' + '#' * 60
+        print 
+        print_oog_word_count(*get_OOV_words(filename, threshold=100))
+        classify_oog_phrases(*get_OOV_words(filename, threshold=100))
         
-        location_oration_id_dict = get_orationid_locations()
+        
+        location_oration_id_dict = get_orationid_locations('data/HDC_Saturday_Command_Locations.csv')
         location_correlator(filename, location_oration_id_dict)
         
             
